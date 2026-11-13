@@ -286,3 +286,41 @@ test('demo images stay inside the frame with no horizontal scroll at 390px', asy
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
 });
+
+test('a decorative penguin peeks out from behind a card', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page
+    .locator('section.showcase')
+    .nth(2)
+    .evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  const peek = page.locator('.peek.out');
+  await expect(peek).toHaveCount(1, { timeout: 12_000 });
+  await expect(peek).toHaveAttribute('aria-hidden', 'true');
+  expect(
+    await peek.evaluate((el) => getComputedStyle(el).zIndex),
+    'sits behind the card',
+  ).toBe('-1');
+  expect(await peek.evaluate((el) => el.parentElement?.className)).toMatch(
+    /card-side|media-side/,
+  );
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(1440);
+});
+
+test('the peeking penguin stays away with reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.waitForTimeout(4000);
+  await expect(page.locator('.peek')).toHaveCount(0);
+});
+
+test('two decorative penguins flank the play button', async ({ page }) => {
+  await page.goto('/');
+  const pals = page.locator('a[data-youtube] .pal svg.penguin');
+  await expect(pals).toHaveCount(2);
+  await expect(page.locator('a[data-youtube] .pals')).toHaveAttribute(
+    'aria-hidden',
+    'true',
+  );
+});

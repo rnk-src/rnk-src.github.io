@@ -1,0 +1,155 @@
+---
+// A chick that peeks out from behind the card or the image in view, now and then.
+// One sprite is cloned into the target at run time. Decorative only.
+import Penguin from './Penguin.astro';
+---
+
+<template id="peek-penguin">
+  <Penguin size={8} />
+</template>
+
+<script>
+  const SPRITE_W = 128;
+  const SPRITE_H = 144;
+  // How far the head pokes out: eyes only, half the face, the full face.
+  const REVEAL = [40, 52, 64];
+  type Edge = 'top' | 'left' | 'right';
+
+  const template = document.querySelector<HTMLTemplateElement>('#peek-penguin');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rand = (min: number, max: number) => min + Math.random() * (max - min);
+  const pick = <T,>(items: T[]) =>
+    items[Math.floor(Math.random() * items.length)];
+
+  // The row whose middle sits nearest the middle of the window.
+  function rowInView() {
+    const mid = innerHeight / 2;
+    let best: HTMLElement | null = null;
+    let bestGap = Infinity;
+    document
+      .querySelectorAll<HTMLElement>('section.showcase')
+      .forEach((row) => {
+        const r = row.getBoundingClientRect();
+        if (r.bottom < innerHeight * 0.25 || r.top > innerHeight * 0.75) return;
+        const gap = Math.abs((r.top + r.bottom) / 2 - mid);
+        if (gap < bestGap) {
+          best = row;
+          bestGap = gap;
+        }
+      });
+    return best as HTMLElement | null;
+  }
+
+  // Edges with room for the head, so the page never gains a horizontal scrollbar.
+  function edgesFor(
+    side: HTMLElement,
+    other: HTMLElement | null,
+    depth: number,
+  ) {
+    const r = side.getBoundingClientRect();
+    const edges: Edge[] = ['top', 'top'];
+    if (r.height < SPRITE_H + 40) return edges;
+    const stacked = other
+      ? Math.abs(other.getBoundingClientRect().left - r.left) < 8
+      : true;
+    if (stacked) return edges;
+    const o = other!.getBoundingClientRect();
+    const roomLeft = o.right <= r.left ? r.left - o.right : r.left;
+    const roomRight =
+      o.left >= r.right ? o.left - r.right : innerWidth - r.right;
+    if (roomLeft - 8 >= depth) edges.push('left');
+    if (roomRight - 8 >= depth) edges.push('right');
+    return edges;
+  }
+
+  function peek() {
+    const row = rowInView();
+    if (!row || !template) return;
+    const sides = [
+      row.querySelector<HTMLElement>('.card-side'),
+      row.querySelector<HTMLElement>('.media-side'),
+    ];
+    const index = Math.random() < 0.5 ? 0 : 1;
+    const side = sides[index];
+    if (!side) return;
+    const depth = pick(REVEAL);
+    const edge = pick(edgesFor(side, sides[1 - index], depth));
+    const rect = side.getBoundingClientRect();
+
+    const el = document.createElement('div');
+    el.className = `peek ${edge}`;
+    el.setAttribute('aria-hidden', 'true');
+    el.style.setProperty('--d', `${depth}px`);
+    el.style.setProperty('--rot', `${rand(-22, 22).toFixed(1)}deg`);
+    if (edge === 'top') {
+      const room = Math.max(rect.width - SPRITE_W - 24, 0);
+      el.style.left = `${12 + rand(0, room)}px`;
+    } else {
+      const room = Math.max(rect.height - SPRITE_W - 24, 0);
+      el.style.top = `${12 + rand(0, room) + SPRITE_W / 2 - SPRITE_H / 2}px`;
+    }
+    el.append(template.content.cloneNode(true));
+    side.append(el);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => el.classList.add('out')),
+    );
+    setTimeout(() => el.classList.remove('out'), rand(2800, 4800));
+    setTimeout(() => el.remove(), 6000);
+  }
+
+  function schedule(first: boolean) {
+    setTimeout(
+      () => {
+        if (!document.hidden) peek();
+        schedule(false);
+      },
+      first ? rand(1500, 3000) : rand(6000, 13000),
+    );
+  }
+
+  if (template && !reduced) schedule(true);
+</script>
+
+<style is:global>
+  .card-side,
+  .media-side {
+    position: relative;
+    isolation: isolate;
+  }
+  .peek {
+    position: absolute;
+    z-index: -1;
+    width: 128px;
+    height: 144px;
+    pointer-events: none;
+    transition-duration: 0.45s;
+    transition-timing-function: steps(5);
+    transition-property: top, left, right;
+  }
+  .peek svg {
+    width: 100%;
+    height: 100%;
+  }
+  .peek.top {
+    top: 0;
+    transform: rotate(var(--rot));
+    transform-origin: 50% 100%;
+  }
+  .peek.top.out {
+    top: calc(var(--d) * -1);
+  }
+  .peek.left {
+    left: 8px;
+    transform: rotate(calc(-90deg + var(--rot)));
+  }
+  .peek.left.out {
+    left: calc(8px - var(--d));
+  }
+  .peek.right {
+    right: 8px;
+    transform: rotate(calc(90deg + var(--rot)));
+  }
+  .peek.right.out {
+    right: calc(8px - var(--d));
+  }
+</style>

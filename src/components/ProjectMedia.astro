@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import Penguin from './Penguin.astro';
 import type { ImageMetadata } from 'astro';
 
 interface Shot {
@@ -27,7 +28,21 @@ const shots = image ? [image, ...(image.second ? [image.second] : [])] : [];
       data-youtube={youtube}
       data-title={`${title} demo video`}
     >
-      <span class="play" aria-hidden="true" />
+      <span class="pals" aria-hidden="true">
+        <span class="pal left">
+          <svg class="huh" viewBox="0 0 5 7" shape-rendering="crispEdges">
+            <path d="M1 0h3v1h1v2h-1v1h-1v1h-1v-1h1v-1h1v-2h-3zM2 6h1v1h-1z" />
+          </svg>
+          <Penguin size={5} />
+        </span>
+        <span class="play" />
+        <span class="pal right">
+          <svg class="huh" viewBox="0 0 5 7" shape-rendering="crispEdges">
+            <path d="M1 0h3v1h1v2h-1v1h-1v1h-1v-1h1v-1h1v-2h-3zM2 6h1v1h-1z" />
+          </svg>
+          <Penguin size={5} />
+        </span>
+      </span>
       <span class="label">Play the {title} demo</span>
     </a>
   ) : shots.length ? (
@@ -211,9 +226,77 @@ const shots = image ? [image, ...(image.second ? [image.second] : [])] : [];
     position: relative;
     color: var(--ink);
     text-decoration: none;
+    background: var(--night-0);
   }
   .video:hover {
-    background: var(--night-2);
+    background: var(--night-1);
+  }
+  /* Two chicks puzzle over the play button. Each leans in and tilts its head, and a
+     question mark floats above. The sprites are decorative. */
+  .pals {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 5%, 40px);
+    width: 100%;
+    margin-block-end: 20px;
+  }
+  .pal {
+    position: relative;
+    flex: 0 0 clamp(56px, 18%, 88px);
+  }
+  .pal :global(svg.penguin) {
+    width: 100%;
+    height: auto;
+    transform-origin: 50% 100%;
+    animation: ponder 4.8s steps(1) infinite;
+  }
+  .pal.right :global(svg.penguin) {
+    animation-name: ponder-right;
+    animation-delay: -1.7s;
+  }
+  .huh {
+    position: absolute;
+    width: 20%;
+    inset-block-start: -22%;
+    fill: var(--accent);
+  }
+  .left .huh {
+    inset-inline-start: 4%;
+  }
+  .right .huh {
+    inset-inline-end: 4%;
+  }
+  @keyframes ponder {
+    0%,
+    45% {
+      transform: rotate(8deg);
+    }
+    50%,
+    100% {
+      transform: rotate(16deg);
+    }
+  }
+  @keyframes ponder-right {
+    0%,
+    45% {
+      transform: rotate(-16deg);
+    }
+    50%,
+    100% {
+      transform: rotate(-8deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pal :global(svg.penguin) {
+      animation: none;
+    }
+    .pal.left :global(svg.penguin) {
+      transform: rotate(8deg);
+    }
+    .pal.right :global(svg.penguin) {
+      transform: rotate(-8deg);
+    }
   }
   .play {
     width: 0;

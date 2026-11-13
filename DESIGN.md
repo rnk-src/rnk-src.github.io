@@ -201,18 +201,18 @@ A 32px single-colour pixel icon (GitHub mark, LinkedIn "in", envelope) beside a 
 
 ### Media Frame
 
-A 16:9 notched frame. It holds either a "Demo coming soon" placeholder in the pixel face or a play panel for a YouTube demo. The player loads only after a click, from the privacy-friendly domain. Without JavaScript the panel links to YouTube.
+A 16:9 notched frame. It holds either a "Demo coming soon" placeholder in the pixel face or a play panel for a YouTube demo. The play panel sits on the page background colour. Two chicks flank the play button, lean toward it and tilt their heads, each with a question mark above. The player loads only after a click, from the privacy-friendly domain. Without JavaScript the panel links to YouTube.
 
 ### Sprites
 
-The moon, the planets and the penguins are SVG pixel art drawn from character grids. They are decorative and `aria-hidden`. The penguin blinks, and the planets and shooting stars are the only moving background elements.
+The moon, the planets and the penguins are SVG pixel art drawn from character grids. They are decorative and `aria-hidden`. A single chick also peeks out now and then from behind the card or the image in view. It shows only the eyes, half the face or the full face, at a random angle and spot on an edge with room, and never causes horizontal scroll. The penguin blinks, and the planets and shooting stars are the only moving background elements.
 
 ## Do's and Don'ts
 
 ### Do:
 
 - Do keep pixel art to accents: sky, margins, borders and a few penguins.
-- Do keep the penguin at one or two on the page, and keep the same chick design.
+- Do keep the penguin to the hero, the footer, the two flanking the play button and one peeking at a time, all in the same chick design.
 - Do respect `prefers-reduced-motion`: stop the blink, twinkle, shooting stars, planet drift and row entrance.
 - Do keep every text colour at WCAG AA contrast on its background.
 
