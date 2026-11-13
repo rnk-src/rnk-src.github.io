@@ -1,5 +1,6 @@
 ---
-// A fluffy emperor penguin chick in profile, facing left. Decorative only.
+// A fluffy penguin chick facing front: the first sprite's face on the avatar chick's body.
+// Decorative only.
 interface Props {
   size?: number; // CSS pixels per sprite pixel
   flip?: boolean;
@@ -8,27 +9,28 @@ interface Props {
 const { size = 6, flip = false, class: className = '' } = Astro.props;
 
 const rows = [
-  '.....oooooo.....',
-  '....oooooooo....',
-  '...oooowwwooo...',
-  '..ooooowewwoo...',
-  'ooooooowwwwoo...',
-  '.oooooowwwwooo..',
-  '...oooowwwooo...',
-  '....ooooooooo...',
-  '...gggoooogggg..',
-  '..gggggggggggg..',
-  '.dglllllgggggggg',
-  '.ddllllllggggggd',
-  '.ddlllllllggggdd',
-  '.dglllllllggggg.',
-  '..gllllllggggg..',
-  '..ggllllgggggg..',
+  '.....hhhhhh.....',
+  '...hhhhhhhhhh...',
+  '..hhhhhhhhhhhh..',
+  '..hhhwwhhwwhhh..',
+  '..hhwewhhwewhh..',
+  '..hhwwwyywwwhh..',
+  '...hhwwwwwwhh...',
+  '....hhhhhhhh....',
+  '...gggggggggg...',
+  '..ggggllllgggg..',
+  '.dgggllllllgggd.',
+  '.ddgllllllllgdd.',
+  '.ddgllllllllgdd.',
+  '.dggllllllllggd.',
+  '..ggllllllllgg..',
+  '..gggllllllggg..',
   '...gggggggggg...',
   '....ff....ff....',
 ];
 const fills: Record<string, string> = {
-  o: 'var(--pg-head)',
+  h: 'var(--pg-head)',
+  y: 'var(--pg-beak)',
   w: 'var(--pg-patch)',
   e: 'var(--pg-eye)',
   g: 'var(--pg-body)',
