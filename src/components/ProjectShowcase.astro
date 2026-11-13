@@ -27,8 +27,7 @@ const flip = index % 2 === 1;
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     gap: clamp(32px, 5vw, 64px);
     align-items: center;
-    min-height: min(80dvh, 720px);
-    padding-block: clamp(24px, 4vw, 48px);
+    padding-block: clamp(40px, 7vw, 96px);
   }
   .flip {
     grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
@@ -39,18 +38,12 @@ const flip = index % 2 === 1;
   .flip .media-side {
     order: 1;
   }
-  @media (min-width: 801px) {
-    .showcase {
-      scroll-snap-align: center;
-    }
-  }
   @media (max-width: 800px) {
     .showcase,
     .flip {
       grid-template-columns: minmax(0, 1fr);
-      min-height: 0;
       gap: 24px;
-      padding-block: 24px;
+      padding-block: 32px;
     }
     .flip .card-side,
     .flip .media-side {
