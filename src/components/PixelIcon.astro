@@ -1,0 +1,105 @@
+---
+// Single-colour pixel icons on a 16x16 grid. They use currentColor, so a link's
+// colour and hover state carry through. Decorative: the link text names the action.
+interface Props {
+  name: 'github' | 'email' | 'linkedin';
+  size?: number; // CSS pixels per sprite pixel
+  class?: string;
+}
+const { name, size = 2, class: className = '' } = Astro.props;
+
+const sprites = {
+  // The GitHub mark: a ring around a white cat head with two ears, open at the bottom.
+  github: [
+    '....########....',
+    '..############..',
+    '.##############.',
+    '.###..####..###.',
+    '###...####...###',
+    '###..........###',
+    '###..........###',
+    '###..........###',
+    '###..........###',
+    '###..........###',
+    '####........####',
+    '.#####....#####.',
+    '.##.##....#####.',
+    '..##......####..',
+    '...###....###...',
+    '.....#....#.....',
+  ],
+  // An envelope with a V flap.
+  email: [
+    '................',
+    '................',
+    '................',
+    '################',
+    '#.##........##.#',
+    '#..##......##..#',
+    '#...##....##...#',
+    '#....##..##....#',
+    '#.....####.....#',
+    '#..............#',
+    '#..............#',
+    '#..............#',
+    '################',
+    '................',
+    '................',
+    '................',
+  ],
+  // The "in" mark cut out of a square.
+  linkedin: [
+    '.##############.',
+    '################',
+    '################',
+    '################',
+    '####.###########',
+    '################',
+    '####.#.....#####',
+    '####.#.###.#####',
+    '####.#.###.#####',
+    '####.#.###.#####',
+    '####.#.###.#####',
+    '####.#.###.#####',
+    '################',
+    '################',
+    '################',
+    '.##############.',
+  ],
+};
+const rows = sprites[name];
+
+const rects: { x: number; y: number; w: number }[] = [];
+rows.forEach((row, y) => {
+  let x = 0;
+  while (x < row.length) {
+    const c = row[x];
+    let w = 1;
+    while (x + w < row.length && row[x + w] === c) w++;
+    if (c === '#') rects.push({ x, y, w });
+    x += w;
+  }
+});
+---
+
+<svg
+  class={`pixel-icon ${className}`}
+  width={rows[0].length * size}
+  height={rows.length * size}
+  viewBox={`0 0 ${rows[0].length} ${rows.length}`}
+  shape-rendering="crispEdges"
+  fill="currentColor"
+  aria-hidden="true"
+  focusable="false"
+>
+  {rects.map((r) => (
+    <rect x={r.x} y={r.y} width={r.w} height={1} />
+  ))}
+</svg>
+
+<style>
+  .pixel-icon {
+    display: block;
+    flex: none;
+  }
+</style>
