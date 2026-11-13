@@ -1,0 +1,98 @@
+---
+// A baby penguin drawn on a 14x14 pixel grid. Decorative only.
+interface Props {
+  size?: number; // CSS pixels per sprite pixel
+  flip?: boolean;
+  class?: string;
+}
+const { size = 6, flip = false, class: className = '' } = Astro.props;
+
+const rows = [
+  '....oooooo....',
+  '..oobbbbbboo..',
+  '.obbbbbbbbbbo.',
+  '.obbwwbbwwbbo.',
+  '.obwkwbbwkwbo.',
+  '.obwwwyywwwbo.',
+  '..obwwwwwwbo..',
+  '.obbwwwwwwbbo.',
+  'obbbwwwwwwbbbo',
+  'obbbwwwwwwbbbo',
+  'obbbwwwwwwbbbo',
+  '.obbwwwwwwbbo.',
+  '..oobbbbbboo..',
+  '..yyy....yyy..',
+];
+const fills: Record<string, string> = {
+  o: 'var(--pg-outline)',
+  b: 'var(--pg-body)',
+  w: 'var(--pg-belly)',
+  y: 'var(--pg-beak)',
+  k: 'var(--pg-eye)',
+};
+
+// Run-length encode each row into rects.
+const rects: { x: number; y: number; w: number; fill: string; eye: boolean }[] =
+  [];
+rows.forEach((row, y) => {
+  let x = 0;
+  while (x < row.length) {
+    const c = row[x];
+    let w = 1;
+    while (x + w < row.length && row[x + w] === c) w++;
+    if (c !== '.') rects.push({ x, y, w, fill: fills[c], eye: c === 'k' });
+    x += w;
+  }
+});
+const cols = rows[0].length;
+---
+
+<svg
+  class={`penguin ${className}`}
+  width={cols * size}
+  height={rows.length * size}
+  viewBox={`0 0 ${cols} ${rows.length}`}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+  focusable="false"
+  style={flip ? 'transform: scaleX(-1)' : undefined}
+>
+  {rects.map((r) => (
+    <rect
+      x={r.x}
+      y={r.y}
+      width={r.w}
+      height={1}
+      fill={r.fill}
+      class={r.eye ? 'penguin-eye' : undefined}
+    />
+  ))}
+</svg>
+
+<style>
+  .penguin {
+    display: block;
+    image-rendering: pixelated;
+  }
+  .penguin-eye {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: blink 5.5s steps(1) infinite;
+  }
+  @keyframes blink {
+    0%,
+    94%,
+    100% {
+      transform: scaleY(1);
+    }
+    95%,
+    97% {
+      transform: scaleY(0.2);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .penguin-eye {
+      animation: none;
+    }
+  }
+</style>
