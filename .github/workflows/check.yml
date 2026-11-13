@@ -1,0 +1,24 @@
+# Copy to .github/workflows/check.yml in a portfolio repo.
+# Runs the same `make check` that Claude runs locally. Uses no Claude tokens.
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Python projects: uncomment.
+      # - uses: astral-sh/setup-uv@v6
+      # C/C++ projects: install toolchain as needed, e.g.
+      # - run: sudo apt-get update && sudo apt-get install -y build-essential cmake clang-format
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: make check
