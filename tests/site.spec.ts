@@ -167,3 +167,26 @@ test('reduced motion turns off the scroll animation', async ({ page }) => {
     .evaluate((el) => getComputedStyle(el).opacity);
   expect(opacity).toBe('1');
 });
+
+test('link preview metadata and icons are present and resolve', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/');
+  const og = await page
+    .locator('meta[property="og:image"]')
+    .getAttribute('content');
+  expect(og).toBe('https://rnk-src.github.io/og.png');
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    'content',
+    'summary_large_image',
+  );
+  for (const path of [
+    '/og.png',
+    '/favicon.svg',
+    '/favicon.ico',
+    '/apple-touch-icon.png',
+  ]) {
+    expect((await request.get(path)).status(), path).toBe(200);
+  }
+});
