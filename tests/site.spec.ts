@@ -93,12 +93,12 @@ test('contact links keep a text label and hide their pixel icons', async ({
   );
 });
 
-test('each project has a media slot: one demo video, the rest placeholders', async ({
+test('each project has a media slot: one demo video, three images, two placeholders', async ({
   page,
 }) => {
   await page.goto('/');
   await expect(page.locator('section.showcase')).toHaveCount(6);
-  await expect(page.getByText('Demo coming soon')).toHaveCount(5);
+  await expect(page.getByText('Demo coming soon')).toHaveCount(2);
   const video = page.locator('a[data-youtube]');
   await expect(video).toHaveCount(1);
   await expect(video).toHaveAttribute('href', /ugVnFpN2Pz0/);
@@ -247,4 +247,42 @@ test('axe finds no accessibility violations at desktop and phone width', async (
       `axe at ${width}px`,
     ).toEqual([]);
   }
+});
+
+test('demo images have alt text, fixed size, lazy loading and load', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const imgs = page.locator('.media img');
+  const count = await imgs.count();
+  expect(count).toBeGreaterThan(0);
+  for (let i = 0; i < count; i++) {
+    const img = imgs.nth(i);
+    await expect(img).toHaveAttribute('alt', /\S/);
+    await expect(img).toHaveAttribute('width', /\d+/);
+    await expect(img).toHaveAttribute('height', /\d+/);
+    await expect(img).toHaveAttribute('loading', 'lazy');
+    // A toggled-away image is hidden and never loads until it is selected.
+    if (!(await img.isVisible())) continue;
+    await img.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => img.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+  }
+});
+
+test('demo images stay inside the frame with no horizontal scroll at 390px', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  for (const media of await page.locator('.media:has(img)').all()) {
+    const box = await media.boundingBox();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  }
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(390);
 });
