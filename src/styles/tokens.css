@@ -16,12 +16,14 @@
   --accent-strong: #d4c4ff;
   --on-accent: #07060f;
 
-  /* Penguin sprite palette */
-  --pg-outline: #1b1740;
-  --pg-body: #5b4bb8;
-  --pg-belly: #efeaff;
-  --pg-beak: #ffb454;
+  /* Penguin sprite palette: an emperor chick, tinted to the night sky */
+  --pg-head: #2a2350;
+  --pg-patch: #efeaff;
   --pg-eye: #07060f;
+  --pg-body: #a59fc4;
+  --pg-belly: #cfcae6;
+  --pg-flipper: #7c7699;
+  --pg-feet: #4a3f96;
 
   /* Moon sprite palette */
   --moon-light: #e9e3ff;
