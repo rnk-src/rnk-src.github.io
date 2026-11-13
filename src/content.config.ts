@@ -12,6 +12,11 @@ const projects = defineCollection({
     order: z.number(),
     // GitHub repo URL. Leave out until the repo is public.
     repo: z.string().url().optional(),
+    // YouTube video ID of a demo. Leave out to show the "Demo coming soon" placeholder.
+    youtube: z
+      .string()
+      .regex(/^[\w-]{11}$/)
+      .optional(),
   }),
 });
 

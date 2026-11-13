@@ -44,7 +44,7 @@ test('reduced motion stops the penguin blink and star twinkle', async ({
   expect(blink).toBe('none');
 });
 
-test('shows all seven projects in resume order', async ({ page }) => {
+test('shows all six projects in resume order', async ({ page }) => {
   await page.goto('/');
   const titles = await page.locator('article h3').allTextContents();
   expect(titles).toEqual([
@@ -52,7 +52,6 @@ test('shows all seven projects in resume order', async ({ page }) => {
     'Assisted Mortar and Pestle',
     'Background Cleaner',
     'Microcontroller Pong',
-    'Digital Moog Synthesizer',
     'Interactive Gradient Descent',
     'Kingdom Builder',
   ]);
@@ -67,7 +66,7 @@ test('repo links point to GitHub and missing repos say so', async ({
     .evaluateAll((els) => els.map((el) => (el as HTMLAnchorElement).href));
   for (const href of hrefs) expect(new URL(href).hostname).toBe('github.com');
   const soon = await page.getByText('Repo link coming soon').count();
-  expect(hrefs.length + soon).toBe(7);
+  expect(hrefs.length + soon).toBe(6);
 });
 
 test('every card is readable and fits at 390px', async ({ page }) => {
@@ -91,4 +90,42 @@ test('contact links keep a text label and hide their pixel icons', async ({
   await expect(nav.locator('svg.pixel-icon[aria-hidden="true"]')).toHaveCount(
     3,
   );
+});
+
+test('each project has a media slot: one demo video, the rest placeholders', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.locator('section.showcase')).toHaveCount(6);
+  await expect(page.getByText('Demo coming soon')).toHaveCount(5);
+  const video = page.locator('a[data-youtube]');
+  await expect(video).toHaveCount(1);
+  await expect(video).toHaveAttribute('href', /ugVnFpN2Pz0/);
+});
+
+test('the demo video loads only after a click', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('iframe')).toHaveCount(0);
+  await page.locator('a[data-youtube]').click();
+  const frame = page.locator('iframe.player');
+  await expect(frame).toHaveCount(1);
+  await expect(frame).toHaveAttribute(
+    'src',
+    /youtube-nocookie\.com\/embed\/ugVnFpN2Pz0/,
+  );
+});
+
+test('card and media sit side by side on desktop and stack on mobile', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const first = page.locator('section.showcase').first();
+  const card = await first.locator('article').boundingBox();
+  const media = await first.locator('.media').boundingBox();
+  expect(media!.x).toBeGreaterThan(card!.x + card!.width - 1);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const card2 = await first.locator('article').boundingBox();
+  const media2 = await first.locator('.media').boundingBox();
+  expect(media2!.y).toBeGreaterThan(card2!.y + card2!.height - 1);
 });

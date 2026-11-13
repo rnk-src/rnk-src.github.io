@@ -11,6 +11,7 @@
 }
 
 html {
+  scroll-snap-type: y proximity;
   background: var(--night-0);
   color-scheme: dark;
   scrollbar-color: var(--line-strong) var(--night-0);
