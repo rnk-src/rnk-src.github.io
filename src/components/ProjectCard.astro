@@ -121,6 +121,9 @@ const { Content } = await render(project);
     gap: 10px;
     color: var(--ink-muted);
   }
+  .bullets :global(li) {
+    text-wrap: pretty;
+  }
   .bullets :global(li)::marker {
     color: var(--accent);
   }
