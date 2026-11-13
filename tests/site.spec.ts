@@ -191,22 +191,32 @@ test('link preview metadata and icons are present and resolve', async ({
   }
 });
 
-test('planets and shooting stars live in the fixed sky and stay while scrolling', async ({
+test('planets are spread down the whole page and scroll with it', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await expect(page.locator('.sky svg.planet')).toHaveCount(2);
-  await expect(page.locator('.sky .shoot')).toHaveCount(2);
-  await expect(page.locator('.sky svg.planet').first()).toHaveAttribute(
-    'aria-hidden',
-    'true',
+  const planets = page.locator('.cosmos svg.planet');
+  await expect(planets).toHaveCount(5);
+  await expect(planets.first()).toHaveAttribute('aria-hidden', 'true');
+  const docHeight = await page.evaluate(
+    () => document.documentElement.scrollHeight,
   );
-  const planet = page.locator('.sky svg.planet').first();
-  const before = await planet.boundingBox();
-  await page.evaluate(() => window.scrollTo(0, 2000));
-  const after = await planet.boundingBox();
-  expect(after!.y).toBe(before!.y);
+  const tops = await planets.evaluateAll((els) =>
+    els.map((el) => el.getBoundingClientRect().top + window.scrollY),
+  );
+  expect(Math.max(...tops) - Math.min(...tops)).toBeGreaterThan(
+    docHeight * 0.5,
+  );
+  const before = await planets.first().boundingBox();
+  await page.evaluate(() => window.scrollTo(0, 800));
+  const after = await planets.first().boundingBox();
+  expect(after!.y).toBeLessThan(before!.y - 400);
+});
+
+test('shooting stars live in the fixed sky', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.sky .shoot')).toHaveCount(4);
   expect(
     await page.locator('.sky').evaluate((el) => getComputedStyle(el).position),
   ).toBe('fixed');
