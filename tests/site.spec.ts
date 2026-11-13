@@ -167,3 +167,67 @@ test('reduced motion turns off the scroll animation', async ({ page }) => {
     .evaluate((el) => getComputedStyle(el).opacity);
   expect(opacity).toBe('1');
 });
+
+test('link preview metadata and icons are present and resolve', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/');
+  const og = await page
+    .locator('meta[property="og:image"]')
+    .getAttribute('content');
+  expect(og).toBe('https://rnk-src.github.io/og.png');
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+    'content',
+    'summary_large_image',
+  );
+  for (const path of [
+    '/og.png',
+    '/favicon.svg',
+    '/favicon.ico',
+    '/apple-touch-icon.png',
+  ]) {
+    expect((await request.get(path)).status(), path).toBe(200);
+  }
+});
+
+test('planets are spread down the whole page and scroll with it', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const planets = page.locator('.cosmos svg.planet');
+  await expect(planets).toHaveCount(5);
+  await expect(planets.first()).toHaveAttribute('aria-hidden', 'true');
+  const docHeight = await page.evaluate(
+    () => document.documentElement.scrollHeight,
+  );
+  const tops = await planets.evaluateAll((els) =>
+    els.map((el) => el.getBoundingClientRect().top + window.scrollY),
+  );
+  expect(Math.max(...tops) - Math.min(...tops)).toBeGreaterThan(
+    docHeight * 0.5,
+  );
+  const before = await planets.first().boundingBox();
+  await page.evaluate(() => window.scrollTo(0, 800));
+  const after = await planets.first().boundingBox();
+  expect(after!.y).toBeLessThan(before!.y - 400);
+});
+
+test('shooting stars live in the fixed sky', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.sky .shoot')).toHaveCount(4);
+  expect(
+    await page.locator('.sky').evaluate((el) => getComputedStyle(el).position),
+  ).toBe('fixed');
+});
+
+test('shooting stars are hidden with reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const display = await page
+    .locator('.shoot')
+    .first()
+    .evaluate((el) => getComputedStyle(el).display);
+  expect(display).toBe('none');
+});

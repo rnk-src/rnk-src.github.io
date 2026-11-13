@@ -1,0 +1,122 @@
+---
+import Planet from './Planet.astro';
+
+// Planets are placed along the whole page, not the screen, so a few are always near
+// whatever part you are reading. They sit in the side margins, muted, behind the content.
+const planets = [
+  {
+    variant: 'ringed',
+    top: 24,
+    side: 'right',
+    gap: 3,
+    size: 4,
+    drift: -90,
+    base: '#3b3487',
+    light: '#5547a8',
+    dark: '#211c52',
+    ring: '#6b5fc4',
+  },
+  {
+    variant: 'banded',
+    top: 38,
+    side: 'left',
+    gap: 2.5,
+    size: 5,
+    drift: -50,
+    base: '#34427f',
+    light: '#4d62a8',
+    dark: '#1d2550',
+  },
+  {
+    variant: 'banded',
+    top: 55,
+    side: 'right',
+    gap: 2,
+    size: 4,
+    drift: -120,
+    base: '#5a3a80',
+    light: '#7a52a8',
+    dark: '#35214f',
+  },
+  {
+    variant: 'ringed',
+    top: 71,
+    side: 'left',
+    gap: 3,
+    size: 3,
+    drift: -70,
+    base: '#2b4a7a',
+    light: '#3f6aa8',
+    dark: '#172a4a',
+    ring: '#4f7fc0',
+  },
+  {
+    variant: 'banded',
+    top: 88,
+    side: 'right',
+    gap: 4,
+    size: 4,
+    drift: -40,
+    base: '#3b3487',
+    light: '#5547a8',
+    dark: '#211c52',
+  },
+] as const;
+---
+
+<div class="cosmos" aria-hidden="true">
+  {planets.map((p) => (
+    <div
+      class="slot"
+      style={`top:${p.top}%;${p.side}:${p.gap}vw;--drift:${p.drift}px`}
+    >
+      <Planet
+        variant={p.variant}
+        size={p.size}
+        base={p.base}
+        light={p.light}
+        dark={p.dark}
+        ring={'ring' in p ? p.ring : undefined}
+      />
+    </div>
+  ))}
+</div>
+
+<style>
+  .cosmos {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .slot {
+    position: absolute;
+  }
+  .slot :global(.planet) {
+    position: static;
+  }
+  /* A slow drift against the scroll gives the planets depth. Reduced motion keeps them still.
+     Timeline longhands are in their own rule so the minifier cannot fold them into a shorthand
+     that some browsers reject. */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .slot {
+        animation-name: drift;
+        animation-fill-mode: both;
+        animation-timing-function: linear;
+      }
+      .cosmos > .slot {
+        animation-timeline: scroll(root);
+      }
+    }
+  }
+  @keyframes drift {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(var(--drift));
+    }
+  }
+</style>
