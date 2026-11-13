@@ -1,5 +1,6 @@
 ---
-// A baby penguin drawn on a 14x14 pixel grid. Decorative only.
+// A fluffy penguin chick facing front: the first sprite's face on the avatar chick's body.
+// Decorative only.
 interface Props {
   size?: number; // CSS pixels per sprite pixel
   flip?: boolean;
@@ -8,27 +9,34 @@ interface Props {
 const { size = 6, flip = false, class: className = '' } = Astro.props;
 
 const rows = [
-  '....oooooo....',
-  '..oobbbbbboo..',
-  '.obbbbbbbbbbo.',
-  '.obbwwbbwwbbo.',
-  '.obwkwbbwkwbo.',
-  '.obwwwyywwwbo.',
-  '..obwwwwwwbo..',
-  '.obbwwwwwwbbo.',
-  'obbbwwwwwwbbbo',
-  'obbbwwwwwwbbbo',
-  'obbbwwwwwwbbbo',
-  '.obbwwwwwwbbo.',
-  '..oobbbbbboo..',
-  '..yyy....yyy..',
+  '.....hhhhhh.....',
+  '...hhhhhhhhhh...',
+  '..hhhhhhhhhhhh..',
+  '..hhhwwhhwwhhh..',
+  '..hhwewhhwewhh..',
+  '..hhwwwyywwwhh..',
+  '...hhwwwwwwhh...',
+  '....hhhhhhhh....',
+  '...gggggggggg...',
+  '..ggggllllgggg..',
+  '.dgggllllllgggd.',
+  '.ddgllllllllgdd.',
+  '.ddgllllllllgdd.',
+  '.dggllllllllggd.',
+  '..ggllllllllgg..',
+  '..gggllllllggg..',
+  '...gggggggggg...',
+  '....ff....ff....',
 ];
 const fills: Record<string, string> = {
-  o: 'var(--pg-outline)',
-  b: 'var(--pg-body)',
-  w: 'var(--pg-belly)',
+  h: 'var(--pg-head)',
   y: 'var(--pg-beak)',
-  k: 'var(--pg-eye)',
+  w: 'var(--pg-patch)',
+  e: 'var(--pg-eye)',
+  g: 'var(--pg-body)',
+  l: 'var(--pg-belly)',
+  d: 'var(--pg-flipper)',
+  f: 'var(--pg-feet)',
 };
 
 // Run-length encode each row into rects.
@@ -40,7 +48,7 @@ rows.forEach((row, y) => {
     const c = row[x];
     let w = 1;
     while (x + w < row.length && row[x + w] === c) w++;
-    if (c !== '.') rects.push({ x, y, w, fill: fills[c], eye: c === 'k' });
+    if (c !== '.') rects.push({ x, y, w, fill: fills[c], eye: c === 'e' });
     x += w;
   }
 });

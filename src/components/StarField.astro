@@ -23,6 +23,10 @@ const twinkleB = layer(9);
   <i class="stars still" style={`box-shadow:${still}`}></i>
   <i class="stars a" style={`box-shadow:${twinkleA}`}></i>
   <i class="stars b" style={`box-shadow:${twinkleB}`}></i>
+  <i class="shoot s1"></i>
+  <i class="shoot s2"></i>
+  <i class="shoot s3"></i>
+  <i class="shoot s4"></i>
 </div>
 
 <style>
@@ -63,7 +67,66 @@ const twinkleB = layer(9);
       opacity: 0.15;
     }
   }
+  /* Shooting stars: rare, short and stepped to match the pixel look.
+     Each one is visible for about 8% of its cycle. */
+  .shoot {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #e9e3ff;
+    opacity: 0;
+    box-shadow:
+      -6px -3px 0 0 #b6aedd,
+      -12px -6px 0 0 #8f86bd,
+      -18px -9px 0 0 #5d5690;
+    animation: shoot 19s infinite;
+  }
+  .s1 {
+    left: 22vw;
+    top: 9vh;
+  }
+  .s2 {
+    left: 64vw;
+    top: 27vh;
+    animation-duration: 27s;
+    animation-delay: 9s;
+  }
+  .s3 {
+    left: 41vw;
+    top: 56vh;
+    animation-duration: 31s;
+    animation-delay: 17s;
+  }
+  .s4 {
+    left: 7vw;
+    top: 38vh;
+    animation-duration: 37s;
+    animation-delay: 4s;
+  }
+  @keyframes shoot {
+    0%,
+    91% {
+      opacity: 0;
+      transform: translate(0, 0);
+    }
+    92% {
+      opacity: 1;
+      transform: translate(0, 0);
+      animation-timing-function: steps(9, end);
+    }
+    99% {
+      opacity: 1;
+      transform: translate(216px, 108px);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(216px, 108px);
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
+    .shoot {
+      display: none;
+    }
     .a,
     .b {
       animation: none;
