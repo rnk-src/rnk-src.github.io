@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { test, expect } from '@playwright/test';
 
 test('home page loads without console errors', async ({ page }) => {
@@ -230,4 +231,20 @@ test('shooting stars are hidden with reduced motion', async ({ page }) => {
     .first()
     .evaluate((el) => getComputedStyle(el).display);
   expect(display).toBe('none');
+});
+
+test('axe finds no accessibility violations at desktop and phone width', async ({
+  page,
+}) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    // Reveal every row so the scroll animation does not hide content from the scan.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(
+      results.violations.map((v) => `${v.id}: ${v.nodes.length} node(s)`),
+      `axe at ${width}px`,
+    ).toEqual([]);
+  }
 });
