@@ -1,5 +1,6 @@
 ---
 import Penguin from './Penguin.astro';
+import ContactLinks from './ContactLinks.astro';
 const updated = new Date().toLocaleDateString('en-US', {
   month: 'long',
   year: 'numeric',
@@ -10,11 +11,7 @@ const updated = new Date().toLocaleDateString('en-US', {
 <footer class="site-footer">
   <div class="wrap footer-inner">
     <div>
-      <nav class="links" aria-label="Footer contact">
-        <a href="https://github.com/rnk-src">GitHub</a>
-        <a href="https://www.linkedin.com/in/rounak-r/">LinkedIn</a>
-        <a href="mailto:rounakrai.mail@gmail.com">Email</a>
-      </nav>
+      <ContactLinks label="Footer contact" />
       <p class="updated">Last updated {updated}</p>
     </div>
     <Penguin size={5} flip />
@@ -35,12 +32,6 @@ const updated = new Date().toLocaleDateString('en-US', {
     align-items: flex-end;
     justify-content: space-between;
     gap: 24px;
-  }
-  .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 24px;
-    font-weight: 700;
   }
   .updated {
     margin-top: 12px;

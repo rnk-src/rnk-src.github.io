@@ -1,0 +1,41 @@
+---
+import PixelIcon from './PixelIcon.astro';
+
+interface Props {
+  label: string;
+  class?: string;
+}
+const { label, class: className = '' } = Astro.props;
+const links = [
+  { name: 'github', text: 'GitHub', href: 'https://github.com/rnk-src' },
+  {
+    name: 'linkedin',
+    text: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/rounak-r/',
+  },
+  { name: 'email', text: 'Email', href: 'mailto:rounakrai.mail@gmail.com' },
+] as const;
+---
+
+<nav class={`contact ${className}`} aria-label={label}>
+  {links.map((l) => (
+    <a href={l.href}>
+      <PixelIcon name={l.name} size={2} />
+      <span>{l.text}</span>
+    </a>
+  ))}
+</nav>
+
+<style>
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+  }
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+  }
+</style>
