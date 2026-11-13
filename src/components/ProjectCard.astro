@@ -39,6 +39,7 @@ const { Content } = await render(project);
 <style>
   .card {
     --n: 4px;
+    position: relative;
     background: var(--line);
     padding: 2px;
     clip-path: polygon(
@@ -133,6 +134,15 @@ const { Content } = await render(project);
   }
   .repo {
     font-weight: 700;
+  }
+  /* Stretched link: the whole tile opens the repo, the visible link stays. */
+  .repo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .card:has(.repo) {
+    cursor: pointer;
   }
   .soon {
     color: var(--ink-faint);
