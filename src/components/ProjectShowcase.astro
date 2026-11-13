@@ -12,12 +12,19 @@ const { project, index } = Astro.props;
 const flip = index % 2 === 1;
 ---
 
-<section class:list={['showcase', { flip }]} aria-label={project.data.title}>
+<section
+  class:list={['showcase', { flip, wide: !!project.data.image }]}
+  aria-label={project.data.title}
+>
   <div class="card-side">
     <ProjectCard project={project} />
   </div>
   <div class="media-side">
-    <ProjectMedia title={project.data.title} youtube={project.data.youtube} />
+    <ProjectMedia
+      title={project.data.title}
+      youtube={project.data.youtube}
+      image={project.data.image}
+    />
   </div>
 </section>
 
@@ -31,6 +38,24 @@ const flip = index % 2 === 1;
   }
   .flip {
     grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  }
+  /* Rows with a demo image give the media more room so chart text and labels stay legible. */
+  .wide {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(28px, 3.5vw, 48px);
+  }
+  .wide.flip {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  }
+  @media (max-width: 1000px) {
+    .wide,
+    .wide.flip {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .wide.flip .card-side,
+    .wide.flip .media-side {
+      order: 0;
+    }
   }
   .flip .card-side {
     order: 2;
@@ -95,7 +120,9 @@ const flip = index % 2 === 1;
   }
   @media (max-width: 800px) {
     .showcase,
-    .flip {
+    .flip,
+    .wide,
+    .wide.flip {
       grid-template-columns: minmax(0, 1fr);
       gap: 24px;
       padding-block: 32px;
