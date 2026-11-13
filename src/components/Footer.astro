@@ -1,0 +1,50 @@
+---
+import Penguin from './Penguin.astro';
+const updated = new Date().toLocaleDateString('en-US', {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <nav class="links" aria-label="Footer contact">
+        <a href="https://github.com/rnk-src">GitHub</a>
+        <a href="https://www.linkedin.com/in/rounak-r/">LinkedIn</a>
+        <a href="mailto:rounakrai.mail@gmail.com">Email</a>
+      </nav>
+      <p class="updated">Last updated {updated}</p>
+    </div>
+    <Penguin size={5} flip />
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(64px, 10vw, 120px);
+    padding-block: 32px 48px;
+    border-top: 2px solid var(--line);
+    background: var(--night-1);
+  }
+  .footer-inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    font-weight: 700;
+  }
+  .updated {
+    margin-top: 12px;
+    color: var(--ink-faint);
+    font-size: 0.9375rem;
+  }
+</style>

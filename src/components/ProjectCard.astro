@@ -1,0 +1,137 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const { title, role, tags, dates, repo } = project.data;
+const { Content } = await render(project);
+---
+
+<article class="card">
+  <div class="card-inner">
+    <header>
+      <h3>{title}</h3>
+      {role && <p class="role">{role}</p>}
+      <p class="dates">{dates}</p>
+    </header>
+    <ul class="tags" aria-label="Stack">
+      {tags.map((t) => (
+        <li>{t}</li>
+      ))}
+    </ul>
+    <div class="bullets">
+      <Content />
+    </div>
+    <footer>
+      {repo ? (
+        <a class="repo" href={repo} rel="noopener">
+          View {title} on GitHub
+        </a>
+      ) : (
+        <span class="soon">Repo link coming soon</span>
+      )}
+    </footer>
+  </div>
+</article>
+
+<style>
+  .card {
+    --n: 4px;
+    background: var(--line);
+    padding: 2px;
+    clip-path: polygon(
+      0 var(--n),
+      var(--n) var(--n),
+      var(--n) 0,
+      calc(100% - var(--n)) 0,
+      calc(100% - var(--n)) var(--n),
+      100% var(--n),
+      100% calc(100% - var(--n)),
+      calc(100% - var(--n)) calc(100% - var(--n)),
+      calc(100% - var(--n)) 100%,
+      var(--n) 100%,
+      var(--n) calc(100% - var(--n)),
+      0 calc(100% - var(--n))
+    );
+    transition: background-color 120ms steps(2);
+  }
+  .card:hover,
+  .card:focus-within {
+    background: var(--accent);
+  }
+  .card-inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background: var(--night-1);
+    clip-path: polygon(
+      0 var(--n),
+      var(--n) var(--n),
+      var(--n) 0,
+      calc(100% - var(--n)) 0,
+      calc(100% - var(--n)) var(--n),
+      100% var(--n),
+      100% calc(100% - var(--n)),
+      calc(100% - var(--n)) calc(100% - var(--n)),
+      calc(100% - var(--n)) 100%,
+      var(--n) 100%,
+      var(--n) calc(100% - var(--n)),
+      0 calc(100% - var(--n))
+    );
+  }
+  h3 {
+    font-size: 1.25rem;
+    letter-spacing: 0.01em;
+  }
+  .role,
+  .dates {
+    margin-top: 6px;
+    color: var(--ink-muted);
+    font-size: 0.9375rem;
+  }
+  .role {
+    color: var(--ink);
+  }
+  .dates {
+    color: var(--ink-faint);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tags li {
+    padding: 2px 10px;
+    background: var(--night-2);
+    color: var(--accent-strong);
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+  .bullets :global(ul) {
+    margin: 0;
+    padding-left: 1.1em;
+    display: grid;
+    gap: 10px;
+    color: var(--ink-muted);
+  }
+  .bullets :global(li)::marker {
+    color: var(--accent);
+  }
+  footer {
+    margin-top: auto;
+    padding-top: 4px;
+  }
+  .repo {
+    font-weight: 700;
+  }
+  .soon {
+    color: var(--ink-faint);
+  }
+</style>
