@@ -1,0 +1,10 @@
+dist/
+.astro/
+.agents/
+.claude/
+.codex/
+node_modules/
+package-lock.json
+skills-lock.json
+test-results/
+playwright-report/
