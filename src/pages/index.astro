@@ -2,6 +2,15 @@
 import Base from '../layouts/Base.astro';
 import Penguin from '../components/Penguin.astro';
 import Hills from '../components/Hills.astro';
+import Moon from '../components/Moon.astro';
+import ProjectShowcase from '../components/ProjectShowcase.astro';
+import ContactLinks from '../components/ContactLinks.astro';
+import Footer from '../components/Footer.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <Base
@@ -9,15 +18,12 @@ import Hills from '../components/Hills.astro';
   description="Robotics, embedded and software projects by Rounak Rai, an ECE student at UT Austin."
 >
   <header class="hero">
+    <Moon class="hero-moon" size={8} />
     <div class="wrap hero-inner">
       <div class="hero-copy">
         <h1>Rounak Rai</h1>
         <p class="role">ECE at UT Austin. Robotics and embedded software.</p>
-        <nav class="contact" aria-label="Contact">
-          <a href="https://github.com/rnk-src">GitHub</a>
-          <a href="https://www.linkedin.com/in/rounak-r/">LinkedIn</a>
-          <a href="mailto:rounakrai.mail@gmail.com">Email</a>
-        </nav>
+        <ContactLinks label="Contact" class="hero-contact" />
       </div>
     </div>
     <Hills>
@@ -25,8 +31,14 @@ import Hills from '../components/Hills.astro';
     </Hills>
   </header>
   <main id="projects" class="wrap">
-    <h2 class="visually-hidden">Projects</h2>
+    <h2>Projects</h2>
+    <div class="showcases">
+      {projects.map((p, i) => (
+        <ProjectShowcase project={p} index={i} />
+      ))}
+    </div>
   </main>
+  <Footer />
 </Base>
 
 <style>
@@ -58,16 +70,28 @@ import Hills from '../components/Hills.astro';
     color: var(--ink-muted);
     font-size: 1.25rem;
   }
-  .contact {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 24px;
+  main {
+    position: relative;
+    z-index: 1;
+    padding-top: clamp(40px, 6vw, 72px);
+  }
+  h2 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    margin-bottom: 32px;
+  }
+  :global(.hero-contact) {
     margin-top: 28px;
   }
-  .contact a {
-    font-weight: 700;
+  :global(.hero-moon) {
+    position: absolute;
+    top: clamp(32px, 7vw, 88px);
+    right: max(var(--gutter), calc((100% - var(--page-max)) / 2));
   }
   @media (max-width: 560px) {
+    :global(.hero-moon) {
+      width: 60px;
+      height: 60px;
+    }
     :global(.hero-penguin) {
       width: 84px;
       height: 84px;

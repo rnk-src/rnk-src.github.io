@@ -1,0 +1,41 @@
+---
+import Penguin from './Penguin.astro';
+import ContactLinks from './ContactLinks.astro';
+const updated = new Date().toLocaleDateString('en-US', {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div>
+      <ContactLinks label="Footer contact" />
+      <p class="updated">Last updated {updated}</p>
+    </div>
+    <Penguin size={5} flip />
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(64px, 10vw, 120px);
+    padding-block: 32px 48px;
+    border-top: 2px solid var(--line);
+    background: var(--night-1);
+  }
+  .footer-inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .updated {
+    margin-top: 12px;
+    color: var(--ink-faint);
+    font-size: 0.9375rem;
+  }
+</style>
