@@ -1,0 +1,87 @@
+---
+// Small pixel planets for the night sky. Decorative only; colours come from the caller
+// so the two planets stay muted and never compete with the content.
+interface Props {
+  variant: 'banded' | 'ringed';
+  size?: number; // CSS pixels per sprite pixel
+  base: string;
+  light: string;
+  dark: string;
+  ring?: string;
+  class?: string;
+}
+const {
+  variant,
+  size = 4,
+  base,
+  light,
+  dark,
+  ring = base,
+  class: className = '',
+} = Astro.props;
+
+const sprites = {
+  banded: [
+    '...bbbb...',
+    '.bbbbbbbb.',
+    '.llllllll.',
+    'bbbbbbbbbb',
+    'bbbbbbbbbd',
+    'lllllllldd',
+    'bbbbbbbddd',
+    '.lllllldd.',
+    '.bbbbbddd.',
+    '...bbdd...',
+  ],
+  ringed: [
+    '......................',
+    '........bbbb..........',
+    '......bbbbbbbb........',
+    '......llllllll........',
+    '......bbbbbbbbbb......',
+    '..rrrrbbbbbbbbbbrrrr..',
+    '.rrrrrrrrrrrrrrrrrrrr.',
+    '......bbbbbbbbbd......',
+    '......lllllllldd......',
+    '......bbbbbbbddd......',
+    '.......bbbbbddd.......',
+    '........bbbdd.........',
+  ],
+};
+const rows = sprites[variant];
+const fills: Record<string, string> = { b: base, l: light, d: dark, r: ring };
+
+const rects: { x: number; y: number; w: number; fill: string }[] = [];
+rows.forEach((row, y) => {
+  let x = 0;
+  while (x < row.length) {
+    const c = row[x];
+    let w = 1;
+    while (x + w < row.length && row[x + w] === c) w++;
+    if (c !== '.') rects.push({ x, y, w, fill: fills[c] });
+    x += w;
+  }
+});
+---
+
+<svg
+  class={`planet ${className}`}
+  width={rows[0].length * size}
+  height={rows.length * size}
+  viewBox={`0 0 ${rows[0].length} ${rows.length}`}
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+  focusable="false"
+>
+  {rects.map((r) => (
+    <rect x={r.x} y={r.y} width={r.w} height={1} fill={r.fill} />
+  ))}
+</svg>
+
+<style>
+  .planet {
+    position: absolute;
+    display: block;
+    opacity: 0.55;
+  }
+</style>

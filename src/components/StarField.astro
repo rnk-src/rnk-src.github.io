@@ -1,4 +1,6 @@
 ---
+import Planet from './Planet.astro';
+
 // Sparse pixel stars. Positions are fixed at build time with a seeded generator.
 function rng(seed: number) {
   return () => {
@@ -23,6 +25,25 @@ const twinkleB = layer(9);
   <i class="stars still" style={`box-shadow:${still}`}></i>
   <i class="stars a" style={`box-shadow:${twinkleA}`}></i>
   <i class="stars b" style={`box-shadow:${twinkleB}`}></i>
+  <Planet
+    class="planet-ringed"
+    variant="ringed"
+    size={4}
+    base="#3b3487"
+    light="#5547a8"
+    dark="#211c52"
+    ring="#6b5fc4"
+  />
+  <Planet
+    class="planet-banded"
+    variant="banded"
+    size={5}
+    base="#34427f"
+    light="#4d62a8"
+    dark="#1d2550"
+  />
+  <i class="shoot s1"></i>
+  <i class="shoot s2"></i>
 </div>
 
 <style>
@@ -63,7 +84,63 @@ const twinkleB = layer(9);
       opacity: 0.15;
     }
   }
+  /* Planets sit in the side margins and stay put while the page scrolls. */
+  .sky :global(.planet-ringed) {
+    right: 4vw;
+    top: 38vh;
+  }
+  .sky :global(.planet-banded) {
+    left: 3vw;
+    top: 82vh;
+  }
+  /* Shooting stars: rare, short and stepped to match the pixel look.
+     Each one is visible for about 8% of its cycle. */
+  .shoot {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #e9e3ff;
+    opacity: 0;
+    box-shadow:
+      -6px -3px 0 0 #b6aedd,
+      -12px -6px 0 0 #8f86bd,
+      -18px -9px 0 0 #5d5690;
+    animation: shoot 19s infinite;
+  }
+  .s1 {
+    left: 22vw;
+    top: 9vh;
+  }
+  .s2 {
+    left: 64vw;
+    top: 27vh;
+    animation-duration: 27s;
+    animation-delay: 9s;
+  }
+  @keyframes shoot {
+    0%,
+    91% {
+      opacity: 0;
+      transform: translate(0, 0);
+    }
+    92% {
+      opacity: 1;
+      transform: translate(0, 0);
+      animation-timing-function: steps(9, end);
+    }
+    99% {
+      opacity: 1;
+      transform: translate(216px, 108px);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(216px, 108px);
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
+    .shoot {
+      display: none;
+    }
     .a,
     .b {
       animation: none;
