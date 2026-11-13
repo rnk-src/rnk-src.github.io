@@ -118,6 +118,8 @@ test('the demo video loads only after a click', async ({ page }) => {
 test('card and media sit side by side on desktop and stack on mobile', async ({
   page,
 }) => {
+  // Measure layout without the scroll animation's transforms.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   const first = page.locator('section.showcase').first();
@@ -128,4 +130,40 @@ test('card and media sit side by side on desktop and stack on mobile', async ({
   const card2 = await first.locator('article').boundingBox();
   const media2 = await first.locator('.media').boundingBox();
   expect(media2!.y).toBeGreaterThan(card2!.y + card2!.height - 1);
+});
+
+test('rows animate in on scroll and settle fully visible', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  const row = page.locator('section.showcase').nth(3);
+  const name = await row
+    .locator('.card-side')
+    .evaluate((el) => getComputedStyle(el).animationName);
+  expect(name).toBe('rise');
+  await row.scrollIntoViewIfNeeded();
+  await row.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  await expect
+    .poll(() =>
+      row.locator('.card-side').evaluate((el) => getComputedStyle(el).opacity),
+    )
+    .toBe('1');
+  await expect
+    .poll(() =>
+      row.locator('.media-side').evaluate((el) => getComputedStyle(el).opacity),
+    )
+    .toBe('1');
+});
+
+test('reduced motion turns off the scroll animation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const row = page.locator('section.showcase').nth(3);
+  const name = await row
+    .locator('.card-side')
+    .evaluate((el) => getComputedStyle(el).animationName);
+  expect(name).toBe('none');
+  const opacity = await row
+    .locator('.card-side')
+    .evaluate((el) => getComputedStyle(el).opacity);
+  expect(opacity).toBe('1');
 });
