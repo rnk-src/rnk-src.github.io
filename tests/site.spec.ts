@@ -79,3 +79,16 @@ test('every card is readable and fits at 390px', async ({ page }) => {
     expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   }
 });
+
+test('contact links keep a text label and hide their pixel icons', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const nav = page.getByRole('navigation', { name: 'Contact', exact: true });
+  for (const name of ['GitHub', 'LinkedIn', 'Email']) {
+    await expect(nav.getByRole('link', { name })).toBeVisible();
+  }
+  await expect(nav.locator('svg.pixel-icon[aria-hidden="true"]')).toHaveCount(
+    3,
+  );
+});

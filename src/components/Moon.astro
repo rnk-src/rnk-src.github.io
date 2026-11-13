@@ -1,5 +1,5 @@
 ---
-// A pixel moon on a 12x12 grid. Decorative only.
+// A pixel crescent moon on a 12x12 grid. Decorative only.
 interface Props {
   size?: number; // CSS pixels per sprite pixel
   class?: string;
@@ -7,18 +7,18 @@ interface Props {
 const { size = 8, class: className = '' } = Astro.props;
 
 const rows = [
-  '....llll....',
-  '..llllllll..',
-  '.llllllllls.',
-  'llllccllllls',
-  'lllcccllllss',
-  'llllcllllsss',
-  'lllllllllsss',
-  'llllllcclsss',
-  'lllllcccssss',
-  '.lllllsssss.',
-  '..llssssss..',
-  '....ssss....',
+  '....llls....',
+  '..llllls....',
+  '.llls.......',
+  '.lcls.......',
+  'llls........',
+  'lcls........',
+  'llls........',
+  'llcs........',
+  '.llls.......',
+  '.llls.......',
+  '..llllls....',
+  '....llls....',
 ];
 const fills: Record<string, string> = {
   l: 'var(--moon-light)',

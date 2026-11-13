@@ -4,6 +4,7 @@ import Penguin from '../components/Penguin.astro';
 import Hills from '../components/Hills.astro';
 import Moon from '../components/Moon.astro';
 import ProjectCard from '../components/ProjectCard.astro';
+import ContactLinks from '../components/ContactLinks.astro';
 import Footer from '../components/Footer.astro';
 import { getCollection } from 'astro:content';
 
@@ -22,11 +23,7 @@ const projects = (await getCollection('projects')).sort(
       <div class="hero-copy">
         <h1>Rounak Rai</h1>
         <p class="role">ECE at UT Austin. Robotics and embedded software.</p>
-        <nav class="contact" aria-label="Contact">
-          <a href="https://github.com/rnk-src">GitHub</a>
-          <a href="https://www.linkedin.com/in/rounak-r/">LinkedIn</a>
-          <a href="mailto:rounakrai.mail@gmail.com">Email</a>
-        </nav>
+        <ContactLinks label="Contact" class="hero-contact" />
       </div>
     </div>
     <Hills>
@@ -92,14 +89,8 @@ const projects = (await getCollection('projects')).sort(
       grid-template-columns: 1fr;
     }
   }
-  .contact {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 24px;
+  :global(.hero-contact) {
     margin-top: 28px;
-  }
-  .contact a {
-    font-weight: 700;
   }
   :global(.hero-moon) {
     position: absolute;
