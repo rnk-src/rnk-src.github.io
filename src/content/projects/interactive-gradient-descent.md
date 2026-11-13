@@ -2,7 +2,7 @@
 title: Interactive Gradient Descent
 tags: [Python, NumPy, Matplotlib]
 dates: Mar 2023 – May 2023
-order: 6
+order: 5
 repo: https://github.com/rnk-src/gradient-descent
 ---
 

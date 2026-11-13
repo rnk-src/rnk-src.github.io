@@ -3,6 +3,7 @@ title: Microcontroller Pong
 tags: [C, Arm Cortex-M0+]
 dates: Apr 2026
 order: 4
+youtube: ugVnFpN2Pz0
 ---
 
 - Assembled an MSPM0 microcontroller to run Pong as a single-player game with multi-language support

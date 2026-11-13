@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+import ProjectMedia from './ProjectMedia.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  index: number;
+}
+const { project, index } = Astro.props;
+// Alternate sides so the page has a rhythm. On narrow screens the card always comes first.
+const flip = index % 2 === 1;
+---
+
+<section class:list={['showcase', { flip }]} aria-label={project.data.title}>
+  <div class="card-side">
+    <ProjectCard project={project} />
+  </div>
+  <div class="media-side">
+    <ProjectMedia title={project.data.title} youtube={project.data.youtube} />
+  </div>
+</section>
+
+<style>
+  .showcase {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(32px, 5vw, 64px);
+    align-items: center;
+    min-height: min(80dvh, 720px);
+    padding-block: clamp(24px, 4vw, 48px);
+  }
+  .flip {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  }
+  .flip .card-side {
+    order: 2;
+  }
+  .flip .media-side {
+    order: 1;
+  }
+  @media (min-width: 801px) {
+    .showcase {
+      scroll-snap-align: center;
+    }
+  }
+  @media (max-width: 800px) {
+    .showcase,
+    .flip {
+      grid-template-columns: minmax(0, 1fr);
+      min-height: 0;
+      gap: 24px;
+      padding-block: 24px;
+    }
+    .flip .card-side,
+    .flip .media-side {
+      order: 0;
+    }
+  }
+</style>

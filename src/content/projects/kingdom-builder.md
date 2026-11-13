@@ -3,7 +3,7 @@ title: Kingdom Builder
 role: Team Lead, Backend Developer
 tags: [Java]
 dates: Feb 2023 – May 2023
-order: 7
+order: 6
 repo: https://github.com/rnk-src/kingdom-builder
 ---
 
