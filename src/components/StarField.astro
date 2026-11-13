@@ -1,6 +1,4 @@
 ---
-import Planet from './Planet.astro';
-
 // Sparse pixel stars. Positions are fixed at build time with a seeded generator.
 function rng(seed: number) {
   return () => {
@@ -25,25 +23,10 @@ const twinkleB = layer(9);
   <i class="stars still" style={`box-shadow:${still}`}></i>
   <i class="stars a" style={`box-shadow:${twinkleA}`}></i>
   <i class="stars b" style={`box-shadow:${twinkleB}`}></i>
-  <Planet
-    class="planet-ringed"
-    variant="ringed"
-    size={4}
-    base="#3b3487"
-    light="#5547a8"
-    dark="#211c52"
-    ring="#6b5fc4"
-  />
-  <Planet
-    class="planet-banded"
-    variant="banded"
-    size={5}
-    base="#34427f"
-    light="#4d62a8"
-    dark="#1d2550"
-  />
   <i class="shoot s1"></i>
   <i class="shoot s2"></i>
+  <i class="shoot s3"></i>
+  <i class="shoot s4"></i>
 </div>
 
 <style>
@@ -84,15 +67,6 @@ const twinkleB = layer(9);
       opacity: 0.15;
     }
   }
-  /* Planets sit in the side margins and stay put while the page scrolls. */
-  .sky :global(.planet-ringed) {
-    right: 4vw;
-    top: 38vh;
-  }
-  .sky :global(.planet-banded) {
-    left: 3vw;
-    top: 82vh;
-  }
   /* Shooting stars: rare, short and stepped to match the pixel look.
      Each one is visible for about 8% of its cycle. */
   .shoot {
@@ -116,6 +90,18 @@ const twinkleB = layer(9);
     top: 27vh;
     animation-duration: 27s;
     animation-delay: 9s;
+  }
+  .s3 {
+    left: 41vw;
+    top: 56vh;
+    animation-duration: 31s;
+    animation-delay: 17s;
+  }
+  .s4 {
+    left: 7vw;
+    top: 38vh;
+    animation-duration: 37s;
+    animation-delay: 4s;
   }
   @keyframes shoot {
     0%,
