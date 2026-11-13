@@ -36,3 +36,6 @@ npm-debug.log*
 # Playwright
 test-results/
 playwright-report/
+
+# Impeccable runtime cache
+.impeccable/hook.cache.json

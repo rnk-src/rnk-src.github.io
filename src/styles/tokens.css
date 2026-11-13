@@ -1,0 +1,33 @@
+:root {
+  /* Night sky ground and violet surfaces */
+  --night-0: #0d0b1a;
+  --night-1: #141028;
+  --night-2: #1b1636;
+  --line: #2e2760;
+  --line-strong: #4a3f96;
+
+  /* Text. Contrast on --night-0: ink 16:1, muted 9:1, faint 5.4:1 */
+  --ink: #ece8ff;
+  --ink-muted: #b6aedd;
+  --ink-faint: #8f86bd;
+
+  /* One lavender accent */
+  --accent: #b79cff;
+  --accent-strong: #d4c4ff;
+  --on-accent: #0d0b1a;
+
+  /* Penguin sprite palette */
+  --pg-outline: #1b1740;
+  --pg-body: #5b4bb8;
+  --pg-belly: #efeaff;
+  --pg-beak: #ffb454;
+  --pg-eye: #0d0b1a;
+
+  --font-display: 'Silkscreen', 'Courier New', monospace;
+  --font-body: 'Atkinson Hyperlegible', system-ui, sans-serif;
+
+  --step: 4px; /* one "pixel" of the theme */
+  --gutter: clamp(16px, 5vw, 48px);
+  --measure: 66ch;
+  --page-max: 1120px;
+}
