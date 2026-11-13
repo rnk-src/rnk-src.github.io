@@ -318,3 +318,75 @@ test('the peeking penguin stays away with reduced motion', async ({ page }) => {
   await page.waitForTimeout(4000);
   await expect(page.locator('.peek')).toHaveCount(0);
 });
+
+test('the before/after slider can be set by hand and keeps its labels', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const box = page.locator('[data-compare]').first();
+  await expect(box).toHaveAttribute('style', /--pos: 50%/);
+  const input = box.locator('input[type="range"]');
+  await input.fill('20');
+  await expect(box).toHaveAttribute('style', /--pos: 20%/);
+  await expect(input).toHaveAttribute('aria-label', /before and after/i);
+});
+
+test('the before/after slider sweeps by itself without reduced motion', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const box = page.locator('[data-compare]').first();
+  await box.scrollIntoViewIfNeeded();
+  const first = await box.getAttribute('style');
+  await expect
+    .poll(async () => box.getAttribute('style'), { timeout: 5000 })
+    .not.toBe(first);
+});
+
+test('switching between All removed and One removed keeps a working slider', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const section = page.locator('section.showcase', {
+    has: page.locator('[data-compare]'),
+  });
+  await section.scrollIntoViewIfNeeded();
+  const shown = () =>
+    page.locator('figure:not([hidden]) [data-compare]').first();
+  for (let i = 0; i < 4; i++) {
+    await page
+      .getByRole('button', { name: i % 2 ? 'All removed' : 'One removed' })
+      .click();
+    const frame = await shown().boundingBox();
+    expect(frame!.width).toBeGreaterThan(200);
+    expect(frame!.height).toBeGreaterThan(100);
+    // A freshly shown slider starts near the middle, not stuck at an edge.
+    await expect
+      .poll(async () => {
+        const pos = parseFloat(
+          (await shown().getAttribute('style'))!.match(/--pos: ([\d.]+)%/)![1],
+        );
+        return pos > 5 && pos < 95;
+      })
+      .toBe(true);
+  }
+});
+
+test('the slider bar and grip stay inside the frame at both edges', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const box = page.locator('[data-compare]').first();
+  await box.scrollIntoViewIfNeeded();
+  for (const value of ['0', '100']) {
+    await box.locator('input').fill(value);
+    const frame = (await box.boundingBox())!;
+    for (const part of ['.bar', '.grip']) {
+      const r = (await box.locator(part).boundingBox())!;
+      expect(r.x).toBeGreaterThanOrEqual(frame.x - 0.5);
+      expect(r.x + r.width).toBeLessThanOrEqual(frame.x + frame.width + 0.5);
+    }
+  }
+});
