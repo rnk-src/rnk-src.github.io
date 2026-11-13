@@ -27,11 +27,16 @@ const projects = defineCollection({
           label: z.string().optional(),
           // pair: show both side by side. toggle: show one, with buttons to switch.
           mode: z.enum(['pair', 'toggle']).default('pair'),
+          // after: makes a before/after slider. src is the before image.
+          after: z.object({ src: image(), alt: z.string().min(1) }).optional(),
           second: z
             .object({
               src: image(),
               alt: z.string().min(1),
               label: z.string().optional(),
+              after: z
+                .object({ src: image(), alt: z.string().min(1) })
+                .optional(),
             })
             .optional(),
         })
