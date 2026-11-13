@@ -32,3 +32,7 @@ npm-debug.log*
 .claude/skills/
 .claude/agents/
 .claude/settings.local.json
+
+# Playwright
+test-results/
+playwright-report/
