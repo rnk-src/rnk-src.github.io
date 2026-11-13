@@ -190,3 +190,34 @@ test('link preview metadata and icons are present and resolve', async ({
     expect((await request.get(path)).status(), path).toBe(200);
   }
 });
+
+test('planets and shooting stars live in the fixed sky and stay while scrolling', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await expect(page.locator('.sky svg.planet')).toHaveCount(2);
+  await expect(page.locator('.sky .shoot')).toHaveCount(2);
+  await expect(page.locator('.sky svg.planet').first()).toHaveAttribute(
+    'aria-hidden',
+    'true',
+  );
+  const planet = page.locator('.sky svg.planet').first();
+  const before = await planet.boundingBox();
+  await page.evaluate(() => window.scrollTo(0, 2000));
+  const after = await planet.boundingBox();
+  expect(after!.y).toBe(before!.y);
+  expect(
+    await page.locator('.sky').evaluate((el) => getComputedStyle(el).position),
+  ).toBe('fixed');
+});
+
+test('shooting stars are hidden with reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const display = await page
+    .locator('.shoot')
+    .first()
+    .evaluate((el) => getComputedStyle(el).display);
+  expect(display).toBe('none');
+});
