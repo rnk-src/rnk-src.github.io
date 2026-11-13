@@ -38,6 +38,61 @@ const flip = index % 2 === 1;
   .flip .media-side {
     order: 1;
   }
+  /* One authored moment: each side settles in as its row scrolls into view.
+     The default state is fully visible, so unsupported browsers and reduced-motion
+     users see the page as is. The media slides in from its outer edge. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .card-side {
+        animation-name: rise;
+        animation-fill-mode: both;
+      }
+      .media-side {
+        --from: 48px;
+        animation-name: slide-in;
+        animation-fill-mode: both;
+      }
+      .flip .media-side {
+        --from: -48px;
+      }
+      /* Timeline longhands live in their own rules: the minifier would otherwise merge
+         them into the animation shorthand, which some browsers reject. */
+      .showcase > .card-side {
+        animation-timeline: view();
+      }
+      .showcase > .card-side {
+        animation-range: entry 0% entry 55%;
+      }
+      .showcase > .media-side {
+        animation-timeline: view();
+      }
+      .showcase > .media-side {
+        animation-range: entry 8% entry 65%;
+      }
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(32px);
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(var(--from));
+      animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
   @media (max-width: 800px) {
     .showcase,
     .flip {
@@ -48,6 +103,11 @@ const flip = index % 2 === 1;
     .flip .card-side,
     .flip .media-side {
       order: 0;
+    }
+    /* Stacked: the media rises like the card instead of sliding sideways. */
+    .media-side,
+    .flip .media-side {
+      --from: 0px;
     }
   }
 </style>
