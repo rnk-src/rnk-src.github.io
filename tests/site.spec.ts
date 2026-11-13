@@ -102,6 +102,10 @@ test('each project has a media slot: one demo video, three images, two placehold
   const video = page.locator('a[data-youtube]');
   await expect(video).toHaveCount(1);
   await expect(video).toHaveAttribute('href', /ugVnFpN2Pz0/);
+  await expect(video.locator('img.thumb')).toHaveAttribute(
+    'src',
+    /i\.ytimg\.com\/vi\/ugVnFpN2Pz0\//,
+  );
 });
 
 test('the demo video loads only after a click', async ({ page }) => {
@@ -254,7 +258,7 @@ test('demo images have alt text, fixed size, lazy loading and load', async ({
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const imgs = page.locator('.media img');
+  const imgs = page.locator('.shots img');
   const count = await imgs.count();
   expect(count).toBeGreaterThan(0);
   for (let i = 0; i < count; i++) {
@@ -285,4 +289,32 @@ test('demo images stay inside the frame with no horizontal scroll at 390px', asy
   }
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
+});
+
+test('a decorative penguin peeks out from behind a card', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page
+    .locator('section.showcase')
+    .nth(2)
+    .evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  const peek = page.locator('.peek.out');
+  await expect(peek).toHaveCount(1, { timeout: 12_000 });
+  await expect(peek).toHaveAttribute('aria-hidden', 'true');
+  expect(
+    await peek.evaluate((el) => getComputedStyle(el).zIndex),
+    'sits behind the card',
+  ).toBe('-1');
+  expect(await peek.evaluate((el) => el.parentElement?.className)).toMatch(
+    /card-side|media-side/,
+  );
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(1440);
+});
+
+test('the peeking penguin stays away with reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.waitForTimeout(4000);
+  await expect(page.locator('.peek')).toHaveCount(0);
 });

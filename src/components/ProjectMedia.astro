@@ -27,6 +27,13 @@ const shots = image ? [image, ...(image.second ? [image.second] : [])] : [];
       data-youtube={youtube}
       data-title={`${title} demo video`}
     >
+      <img
+        class="thumb"
+        src={`https://i.ytimg.com/vi/${youtube}/hqdefault.jpg`}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
       <span class="play" aria-hidden="true" />
       <span class="label">Play the {title} demo</span>
     </a>
@@ -211,15 +218,35 @@ const shots = image ? [image, ...(image.second ? [image.second] : [])] : [];
     position: relative;
     color: var(--ink);
     text-decoration: none;
+    background: var(--night-0);
   }
   .video:hover {
-    background: var(--night-2);
+    background: var(--night-1);
   }
+  /* YouTube pads portrait and odd-ratio videos with pure black. Contain keeps the whole
+     picture visible, and lighten turns that black into the frame's own background. */
+  .thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: lighten;
+  }
+  /* The play button sits on a dark disc so it reads over any thumbnail. */
   .play {
-    width: 0;
-    height: 0;
-    border-block: 16px solid transparent;
-    border-inline-start: 28px solid var(--accent);
+    position: relative;
+    width: 72px;
+    height: 72px;
+    background: color-mix(in srgb, var(--night-0) 80%, transparent);
+    display: grid;
+    place-items: center;
+  }
+  .play::before {
+    content: '';
+    margin-inline-start: 6px;
+    border-block: 14px solid transparent;
+    border-inline-start: 24px solid var(--accent);
   }
   .label {
     position: absolute;
@@ -229,5 +256,6 @@ const shots = image ? [image, ...(image.second ? [image.second] : [])] : [];
     font-weight: 700;
     font-size: 0.9375rem;
     color: var(--accent-strong);
+    text-shadow: 0 1px 4px var(--night-0);
   }
 </style>
