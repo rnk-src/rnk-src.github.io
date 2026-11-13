@@ -1,16 +1,76 @@
 ---
+import Base from '../layouts/Base.astro';
+import Penguin from '../components/Penguin.astro';
+import Hills from '../components/Hills.astro';
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-  </body>
-</html>
+<Base
+  title="Rounak Rai | Projects"
+  description="Robotics, embedded and software projects by Rounak Rai, an ECE student at UT Austin."
+>
+  <header class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <h1>Rounak Rai</h1>
+        <p class="role">ECE at UT Austin. Robotics and embedded software.</p>
+        <nav class="contact" aria-label="Contact">
+          <a href="https://github.com/rnk-src">GitHub</a>
+          <a href="https://www.linkedin.com/in/rounak-r/">LinkedIn</a>
+          <a href="mailto:rounakrai.mail@gmail.com">Email</a>
+        </nav>
+      </div>
+    </div>
+    <Hills>
+      <Penguin class="hero-penguin" size={10} />
+    </Hills>
+  </header>
+  <main id="projects" class="wrap">
+    <h2 class="visually-hidden">Projects</h2>
+  </main>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: min(78dvh, 720px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .hero-inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 0;
+  }
+  .hero-copy {
+    padding-bottom: clamp(48px, 10vw, 96px);
+  }
+  h1 {
+    font-size: clamp(2.25rem, 8vw, 4rem);
+    letter-spacing: -0.02em;
+  }
+  .role {
+    margin-top: 16px;
+    max-width: 32ch;
+    color: var(--ink-muted);
+    font-size: 1.25rem;
+  }
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    margin-top: 28px;
+  }
+  .contact a {
+    font-weight: 700;
+  }
+  @media (max-width: 560px) {
+    :global(.hero-penguin) {
+      width: 84px;
+      height: 84px;
+    }
+  }
+</style>

@@ -1,0 +1,72 @@
+---
+// Sparse pixel stars. Positions are fixed at build time with a seeded generator.
+function rng(seed: number) {
+  return () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+}
+const rand = rng(20261113);
+function layer(count: number) {
+  return Array.from({ length: count }, () => {
+    const x = (rand() * 100).toFixed(1);
+    const y = (rand() * 100).toFixed(1);
+    return `${x}vw ${y}vh 0 0 currentColor`;
+  }).join(', ');
+}
+const still = layer(48);
+const twinkleA = layer(9);
+const twinkleB = layer(9);
+---
+
+<div class="sky" aria-hidden="true">
+  <i class="stars still" style={`box-shadow:${still}`}></i>
+  <i class="stars a" style={`box-shadow:${twinkleA}`}></i>
+  <i class="stars b" style={`box-shadow:${twinkleB}`}></i>
+</div>
+
+<style>
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    color: #cfc6ff;
+  }
+  .stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    background: transparent;
+  }
+  .still {
+    color: #8f86bd;
+    width: 2px;
+    height: 2px;
+  }
+  .a {
+    animation: twinkle 4.8s steps(1) infinite;
+  }
+  .b {
+    animation: twinkle 6.4s steps(1) infinite 2.1s;
+  }
+  @keyframes twinkle {
+    0%,
+    60%,
+    100% {
+      opacity: 1;
+    }
+    70%,
+    85% {
+      opacity: 0.15;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .a,
+    .b {
+      animation: none;
+    }
+  }
+</style>

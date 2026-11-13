@@ -1,0 +1,47 @@
+---
+// A stepped pixel hill strip. Each entry is a column height in steps.
+const heights = [
+  3, 3, 4, 4, 5, 5, 5, 6, 6, 5, 5, 4, 4, 4, 3, 3, 3, 4, 4, 5, 5, 6, 6, 6, 5, 4,
+  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 3,
+];
+const plateauHeight = 3; // columns 26-37 are flat: a ledge for the penguin
+const max = 6;
+---
+
+<div class="ground" style={`--ledge:${(plateauHeight / max) * 100}%`}>
+  <svg
+    class="hills"
+    viewBox={`0 0 ${heights.length} ${max}`}
+    preserveAspectRatio="none"
+    shape-rendering="crispEdges"
+    aria-hidden="true"
+    focusable="false"
+  >
+    {heights.map((h, i) => (
+      <rect x={i} y={max - h} width={1.02} height={h} fill="var(--night-1)" />
+    ))}
+    {heights.map((h, i) => (
+      <rect x={i} y={max - h} width={1.02} height={0.35} fill="var(--line)" />
+    ))}
+  </svg>
+  <div class="ledge">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .ground {
+    position: relative;
+  }
+  .ledge {
+    position: absolute;
+    left: 80%;
+    bottom: calc(var(--ledge) - 2px);
+    transform: translateX(-50%);
+  }
+  .hills {
+    display: block;
+    width: 100%;
+    height: clamp(72px, 14vw, 140px);
+  }
+</style>

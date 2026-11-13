@@ -12,6 +12,8 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/silkscreen": "^5.3.0",
     "astro": "^7.4.11"
   },
   "devDependencies": {
