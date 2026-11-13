@@ -1,0 +1,34 @@
+# OS
+.DS_Store
+._*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+.next/
+.astro/
+.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# Agent tooling: installed skills, binaries and local settings
+.agents/
+.codex/
+.claude/skills/
+.claude/agents/
+.claude/settings.local.json
