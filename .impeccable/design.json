@@ -1,0 +1,492 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-13T09:15:42Z",
+  "title": "Design System: Rounak Rai Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "night-ground": {
+        "role": "neutral",
+        "displayName": "Night Ground",
+        "canonical": "#07060f",
+        "tonalRamp": [
+          "#1f1c30",
+          "#2a245b",
+          "#3b3380",
+          "#4c42a4",
+          "#776dc5",
+          "#9992d3",
+          "#c2bde5",
+          "#f0eff6"
+        ]
+      },
+      "night-panel": {
+        "role": "neutral",
+        "displayName": "Night Panel",
+        "canonical": "#0f0b20",
+        "tonalRamp": [
+          "#1f1b31",
+          "#2c215f",
+          "#3e2e85",
+          "#503bab",
+          "#7a67cb",
+          "#9b8dd8",
+          "#c3bbe8",
+          "#f0eff6"
+        ]
+      },
+      "night-chip": {
+        "role": "neutral",
+        "displayName": "Night Chip",
+        "canonical": "#151030",
+        "tonalRamp": [
+          "#1e1b32",
+          "#2a2060",
+          "#3b2d86",
+          "#4b39ac",
+          "#7666cc",
+          "#988cd9",
+          "#c1bae8",
+          "#f0eef6"
+        ]
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Night Line",
+        "canonical": "#2a2358",
+        "tonalRamp": [
+          "#1f1c30",
+          "#2c245b",
+          "#3d3380",
+          "#4e41a4",
+          "#796dc5",
+          "#9a92d3",
+          "#c3bde5",
+          "#f0eff6"
+        ]
+      },
+      "night-line-strong": {
+        "role": "neutral",
+        "displayName": "Night Line Strong",
+        "canonical": "#4a3f96",
+        "tonalRamp": [
+          "#1f1d30",
+          "#2c265a",
+          "#3e357e",
+          "#5044a2",
+          "#7a6fc3",
+          "#9b93d2",
+          "#c3bee4",
+          "#f0eff5"
+        ]
+      },
+      "star-white": {
+        "role": "neutral",
+        "displayName": "Star White",
+        "canonical": "#ece8ff",
+        "tonalRamp": [
+          "#170f3d",
+          "#16007f",
+          "#1f00b2",
+          "#2800e5",
+          "#5633ff",
+          "#8166ff",
+          "#b3a3ff",
+          "#edebfa"
+        ]
+      },
+      "star-muted": {
+        "role": "neutral",
+        "displayName": "Star Muted",
+        "canonical": "#b6aedd",
+        "tonalRamp": [
+          "#201d30",
+          "#2f265a",
+          "#41357e",
+          "#5444a2",
+          "#7e6fc3",
+          "#9e93d2",
+          "#c5bee4",
+          "#f0eff5"
+        ]
+      },
+      "star-faint": {
+        "role": "neutral",
+        "displayName": "Star Faint",
+        "canonical": "#8f86bd",
+        "tonalRamp": [
+          "#221f2d",
+          "#332d52",
+          "#483f74",
+          "#5c5194",
+          "#857bb7",
+          "#a39cc9",
+          "#c8c4df",
+          "#f1f0f4"
+        ]
+      },
+      "lavender": {
+        "role": "primary",
+        "displayName": "Soft Lavender",
+        "canonical": "#b79cff",
+        "tonalRamp": [
+          "#1c0f3d",
+          "#230080",
+          "#3100b2",
+          "#3f00e6",
+          "#6b33ff",
+          "#9066ff",
+          "#bca3ff",
+          "#efebfa"
+        ]
+      },
+      "lavender-bright": {
+        "role": "primary",
+        "displayName": "Bright Lavender",
+        "canonical": "#d4c4ff",
+        "tonalRamp": [
+          "#1c0f3d",
+          "#23007f",
+          "#3000b2",
+          "#3e00e5",
+          "#6a33ff",
+          "#8f66ff",
+          "#bca3ff",
+          "#efebfa"
+        ]
+      },
+      "planet-violet-base": {
+        "role": "neutral",
+        "displayName": "Planet Violet Base",
+        "canonical": "#3b3487",
+        "tonalRamp": [
+          "#1e1c30",
+          "#28235c",
+          "#383281",
+          "#4840a6",
+          "#736cc6",
+          "#9691d4",
+          "#c0bde5",
+          "#efeff6"
+        ]
+      },
+      "planet-violet-light": {
+        "role": "neutral",
+        "displayName": "Planet Violet Light",
+        "canonical": "#5547a8",
+        "tonalRamp": [
+          "#201d30",
+          "#2d265a",
+          "#3f357d",
+          "#5244a1",
+          "#7c70c2",
+          "#9c93d2",
+          "#c4bee4",
+          "#f0eff5"
+        ]
+      },
+      "planet-violet-dark": {
+        "role": "neutral",
+        "displayName": "Planet Violet Dark",
+        "canonical": "#211c52",
+        "tonalRamp": [
+          "#1d1b32",
+          "#26205f",
+          "#362d85",
+          "#453aab",
+          "#7067cb",
+          "#948dd8",
+          "#bfbbe8",
+          "#efeef6"
+        ]
+      },
+      "planet-violet-ring": {
+        "role": "neutral",
+        "displayName": "Planet Violet Ring",
+        "canonical": "#6b5fc4",
+        "tonalRamp": [
+          "#1e1c31",
+          "#29225d",
+          "#3a3082",
+          "#4a3ea8",
+          "#756ac8",
+          "#988fd6",
+          "#c1bce6",
+          "#f0eff6"
+        ]
+      },
+      "planet-blue-base": {
+        "role": "neutral",
+        "displayName": "Planet Blue Base",
+        "canonical": "#34427f",
+        "tonalRamp": [
+          "#1d2030",
+          "#252f5a",
+          "#34427f",
+          "#4355a3",
+          "#6e7ec4",
+          "#929ed3",
+          "#bec5e4",
+          "#eff0f5"
+        ]
+      },
+      "planet-blue-light": {
+        "role": "neutral",
+        "displayName": "Planet Blue Light",
+        "canonical": "#4d62a8",
+        "tonalRamp": [
+          "#1e222f",
+          "#283357",
+          "#38477a",
+          "#485c9d",
+          "#7385bf",
+          "#96a3cf",
+          "#c0c8e2",
+          "#eff1f5"
+        ]
+      },
+      "planet-blue-dark": {
+        "role": "neutral",
+        "displayName": "Planet Blue Dark",
+        "canonical": "#1d2550",
+        "tonalRamp": [
+          "#1c1f31",
+          "#222b5e",
+          "#2f3d83",
+          "#3d4ea8",
+          "#6978c9",
+          "#8f9ad6",
+          "#bcc2e7",
+          "#eff0f6"
+        ]
+      },
+      "planet-plum-base": {
+        "role": "neutral",
+        "displayName": "Planet Plum Base",
+        "canonical": "#5a3a80",
+        "tonalRamp": [
+          "#261e2f",
+          "#3e2858",
+          "#56387b",
+          "#6f489e",
+          "#9673bf",
+          "#b096cf",
+          "#d0c0e2",
+          "#f2eff5"
+        ]
+      },
+      "planet-plum-light": {
+        "role": "neutral",
+        "displayName": "Planet Plum Light",
+        "canonical": "#7a52a8",
+        "tonalRamp": [
+          "#261e2e",
+          "#3e2a56",
+          "#573b78",
+          "#704b9a",
+          "#9776bc",
+          "#b198cd",
+          "#d0c1e1",
+          "#f2f0f5"
+        ]
+      },
+      "planet-plum-dark": {
+        "role": "neutral",
+        "displayName": "Planet Plum Dark",
+        "canonical": "#35214f",
+        "tonalRamp": [
+          "#251d30",
+          "#3c265a",
+          "#54357e",
+          "#6d44a2",
+          "#946fc3",
+          "#ae93d2",
+          "#cfbee4",
+          "#f2eff5"
+        ]
+      },
+      "planet-steel-base": {
+        "role": "neutral",
+        "displayName": "Planet Steel Base",
+        "canonical": "#2b4a7a",
+        "tonalRamp": [
+          "#1b2431",
+          "#21395e",
+          "#2f5084",
+          "#3c67aa",
+          "#688eca",
+          "#8eabd7",
+          "#bbcce7",
+          "#eff1f6"
+        ]
+      },
+      "planet-steel-light": {
+        "role": "neutral",
+        "displayName": "Planet Steel Light",
+        "canonical": "#3f6aa8",
+        "tonalRamp": [
+          "#1c2431",
+          "#233b5d",
+          "#315282",
+          "#3f69a7",
+          "#6b91c7",
+          "#90acd5",
+          "#bccde6",
+          "#eff2f6"
+        ]
+      },
+      "planet-steel-dark": {
+        "role": "neutral",
+        "displayName": "Planet Steel Dark",
+        "canonical": "#172a4a",
+        "tonalRamp": [
+          "#1a2332",
+          "#1e3761",
+          "#2a4d88",
+          "#3663af",
+          "#638bcf",
+          "#8aa8db",
+          "#b9cbe9",
+          "#eef1f6"
+        ]
+      },
+      "planet-steel-ring": {
+        "role": "neutral",
+        "displayName": "Planet Steel Ring",
+        "canonical": "#4f7fc0",
+        "tonalRamp": [
+          "#1b2531",
+          "#223b5e",
+          "#2f5383",
+          "#3c6ba9",
+          "#6992c9",
+          "#8eadd7",
+          "#bbcee7",
+          "#eff2f6"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The name in the hero."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Project titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Bullets and the role line."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips, links and repo links."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Dates, role lines and notes."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Row entrance on scroll."
+      },
+      {
+        "name": "pixel-step",
+        "value": "steps(2)",
+        "purpose": "Card border colour change and sprite animation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "800px"
+      },
+      {
+        "name": "phone",
+        "value": "560px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Project Card",
+      "kind": "card",
+      "refersTo": "project-card",
+      "description": "A project with dates, stack and a repo link.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-inner\"><h3>Background Cleaner</h3><p>Jul 2023 \u2013 Dec 2023</p><a href=\"#\">View Background Cleaner on GitHub</a></div></article>",
+      "css": ".ds-card{background:#2a2358;padding:2px;clip-path:polygon(0 4px,4px 4px,4px 0,calc(100% - 4px) 0,calc(100% - 4px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px));font-family:'Atkinson Hyperlegible',system-ui,sans-serif;max-width:420px}.ds-card:hover,.ds-card:focus-within{background:#b79cff}.ds-card-inner{background:#0f0b20;padding:24px;display:flex;flex-direction:column;gap:12px;clip-path:inherit}.ds-card h3{margin:0;font-family:Silkscreen,monospace;font-size:1.25rem;color:#ece8ff}.ds-card p{margin:0;color:#8f86bd;font-size:.9375rem}.ds-card a{color:#b79cff;font-weight:700}.ds-card a:focus-visible{outline:3px solid #d4c4ff;outline-offset:3px}"
+    },
+    {
+      "name": "Tag Chip",
+      "kind": "chip",
+      "refersTo": "tag-chip",
+      "description": "A stack tag on a project card.",
+      "html": "<span class=\"ds-chip\">PyTorch</span>",
+      "css": ".ds-chip{display:inline-block;padding:2px 10px;background:#151030;color:#d4c4ff;font:700 .875rem 'Atkinson Hyperlegible',system-ui,sans-serif}"
+    },
+    {
+      "name": "Contact Link",
+      "kind": "nav",
+      "refersTo": "contact-link",
+      "description": "A pixel icon with a text label.",
+      "html": "<a class=\"ds-link\" href=\"#\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 12 12\" fill=\"currentColor\" shape-rendering=\"crispEdges\"><rect x=\"0\" y=\"3\" width=\"12\" height=\"1\"/><rect x=\"0\" y=\"9\" width=\"12\" height=\"1\"/><rect x=\"0\" y=\"3\" width=\"1\" height=\"7\"/><rect x=\"11\" y=\"3\" width=\"1\" height=\"7\"/></svg><span>Email</span></a>",
+      "css": ".ds-link{display:inline-flex;align-items:center;gap:8px;color:#b79cff;font:700 1.0625rem 'Atkinson Hyperlegible',system-ui,sans-serif}.ds-link:hover{color:#d4c4ff}.ds-link:focus-visible{outline:3px solid #d4c4ff;outline-offset:3px}"
+    },
+    {
+      "name": "Media Placeholder",
+      "kind": "custom",
+      "refersTo": "media-frame",
+      "description": "The 16:9 slot for a demo video or image.",
+      "html": "<div class=\"ds-media\"><p>Demo coming soon</p></div>",
+      "css": ".ds-media{aspect-ratio:16/9;display:grid;place-items:center;background:#0f0b20;border:2px solid #2a2358}.ds-media p{margin:0;color:#8f86bd;font:.875rem Silkscreen,monospace;letter-spacing:.04em;text-transform:uppercase}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Night Sky",
+    "overview": "A project list set under a night sky. The projects lead and the theme stays at the edges: sparse stars, a pixel moon, muted planets down the margins, a stepped hill strip and a few baby penguins. Pixel art is an accent and never the page.",
+    "keyCharacteristics": [
+      "Near-black navy ground with deep violet panels and one lavender accent.",
+      "Pixel display face for headings only.",
+      "Notched pixel corners instead of rounded ones. No shadows.",
+      "Decorative sprites are always aria-hidden.",
+      "One authored motion moment per row."
+    ],
+    "rules": [
+      {
+        "name": "The One Accent Rule",
+        "body": "Lavender is the only accent. The penguin's amber beak is the only warm colour on the page.",
+        "section": "colors"
+      },
+      {
+        "name": "The Margin Rule",
+        "body": "Colour and decoration live at the edges and in the sky. Text panels stay quiet.",
+        "section": "colors"
+      },
+      {
+        "name": "The Pixel Face Rule",
+        "body": "Silkscreen is for headings only.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do keep pixel art to accents: sky, margins, borders and a few penguins.",
+      "Do respect prefers-reduced-motion.",
+      "Do keep every text colour at WCAG AA contrast."
+    ],
+    "donts": [
+      "Don't add glows, gradients, gradient text or offset block shadows.",
+      "Don't use rounded corners. Use the notch.",
+      "Don't set body text in the pixel face.",
+      "Don't add a second accent colour.",
+      "Don't invent project facts."
+    ]
+  }
+}
