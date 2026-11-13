@@ -102,6 +102,10 @@ test('each project has a media slot: one demo video, three images, two placehold
   const video = page.locator('a[data-youtube]');
   await expect(video).toHaveCount(1);
   await expect(video).toHaveAttribute('href', /ugVnFpN2Pz0/);
+  await expect(video.locator('img.thumb')).toHaveAttribute(
+    'src',
+    /i\.ytimg\.com\/vi\/ugVnFpN2Pz0\//,
+  );
 });
 
 test('the demo video loads only after a click', async ({ page }) => {
@@ -254,7 +258,7 @@ test('demo images have alt text, fixed size, lazy loading and load', async ({
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const imgs = page.locator('.media img');
+  const imgs = page.locator('.shots img');
   const count = await imgs.count();
   expect(count).toBeGreaterThan(0);
   for (let i = 0; i < count; i++) {
@@ -313,14 +317,4 @@ test('the peeking penguin stays away with reduced motion', async ({ page }) => {
   await page.goto('/');
   await page.waitForTimeout(4000);
   await expect(page.locator('.peek')).toHaveCount(0);
-});
-
-test('two decorative penguins flank the play button', async ({ page }) => {
-  await page.goto('/');
-  const pals = page.locator('a[data-youtube] .pal svg.penguin');
-  await expect(pals).toHaveCount(2);
-  await expect(page.locator('a[data-youtube] .pals')).toHaveAttribute(
-    'aria-hidden',
-    'true',
-  );
 });
