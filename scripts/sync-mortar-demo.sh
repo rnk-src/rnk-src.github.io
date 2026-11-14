@@ -8,6 +8,8 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 src="${1:-${MORTAR_REPO:-$root/../mortar-and-pestle}}"
 
 [ -d "$src/web" ] || { echo "No web/ folder in $src" >&2; exit 1; }
+# Remove an old dist first, so a build that makes nothing cannot pass with stale files.
+rm -rf "$src/web/dist"
 (cd "$src/web" && npm ci --prefer-offline --no-audit --no-fund && npm run build)
 
 # DEST overrides the target. The tests use it so they never touch the committed demo.
