@@ -10,8 +10,10 @@ src="${1:-${MORTAR_REPO:-$root/../mortar-and-pestle}}"
 [ -d "$src/web" ] || { echo "No web/ folder in $src" >&2; exit 1; }
 (cd "$src/web" && npm ci --prefer-offline --no-audit --no-fund && npm run build)
 
-dest="$root/public/demos/mortar-pestle"
+# DEST overrides the target. The tests use it so they never touch the committed demo.
+dest="${DEST:-$root/public/demos/mortar-pestle}"
+[ -f "$src/web/dist/index.html" ] || { echo "Build made no web/dist/index.html in $src" >&2; exit 1; }
 rm -rf "$dest"
 mkdir -p "$(dirname "$dest")"
 cp -R "$src/web/dist" "$dest"
-echo "Synced $(du -sh "$dest" | cut -f1) to public/demos/mortar-pestle"
+echo "Synced $(du -sh "$dest" | cut -f1) to $dest"

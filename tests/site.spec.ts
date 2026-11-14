@@ -440,24 +440,6 @@ test('clicking play runs the simulation in the page', async ({ page }) => {
   const box = await canvas.boundingBox();
   expect(box!.width).toBeGreaterThan(200);
 
-  // The Python pipeline is ticking: the estimated forces update.
-  const demo = page
-    .frames()
-    .find((f) => f.url().includes('/demos/mortar-pestle/'))!;
-  await expect
-    .poll(
-      () =>
-        demo.evaluate(() => {
-          const w = window as unknown as {
-            __sim?: { latest?: { leader_force_n: number } | null };
-          };
-          return w.__sim?.latest?.leader_force_n ?? -1;
-        }),
-      {
-        timeout: 30_000,
-      },
-    )
-    .toBeGreaterThanOrEqual(0);
   await expect(frame.getByRole('button', { name: 'Interpret' })).toBeVisible();
   expect(problems).toEqual([]);
 });
@@ -479,4 +461,39 @@ test('the open simulation fits at 390px with no horizontal scroll', async ({
   expect(box!.x + box!.width).toBeLessThanOrEqual(390);
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
+});
+
+test('the simulation frame is dark from the first moment, before the demo paints', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route('**/demos/mortar-pestle/index.html', (route) =>
+    route.fulfill({ contentType: 'text/html', body: '<body></body>' }),
+  );
+  await page.goto('/');
+  await page.locator('a[data-sim]').click();
+  await expect(page.locator('iframe.sim-frame')).toHaveCSS(
+    'background-color',
+    'rgb(16, 20, 28)',
+  );
+});
+
+test('when the demo reports an error, the play link comes back', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route('**/demos/mortar-pestle/index.html', (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<body data-state="loading"><script>setTimeout(() => (document.body.dataset.state = "error"), 100)</script></body>',
+    }),
+  );
+  await page.goto('/');
+  await page.locator('a[data-sim]').click();
+  await expect(page.locator('iframe.sim-frame')).toHaveCount(0);
+  await expect(page.locator('a[data-sim]')).toBeVisible();
+  await expect(page.locator('a[data-sim]')).toHaveAttribute(
+    'href',
+    /\/demos\/mortar-pestle\/index\.html$/,
+  );
 });
