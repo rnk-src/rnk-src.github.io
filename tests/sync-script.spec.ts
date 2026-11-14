@@ -13,7 +13,7 @@ import { join, resolve } from 'node:path';
 const script = resolve('scripts/sync-mortar-demo.sh');
 
 // A fake repo and a fake npm. The fake `npm run build` makes dist only when asked.
-function setup(buildMakesDist: boolean) {
+function setup(buildMakesDist: boolean, staleDist = false) {
   const dir = mkdtempSync(join(tmpdir(), 'sync-'));
   const src = join(dir, 'repo');
   const bin = join(dir, 'bin');
@@ -22,6 +22,10 @@ function setup(buildMakesDist: boolean) {
   mkdirSync(bin);
   mkdirSync(dest);
   writeFileSync(join(dest, 'old.txt'), 'keep me');
+  if (staleDist) {
+    mkdirSync(join(src, 'web', 'dist'));
+    writeFileSync(join(src, 'web', 'dist', 'index.html'), 'stale');
+  }
   writeFileSync(
     join(bin, 'npm'),
     `#!/usr/bin/env bash\n${
@@ -52,4 +56,11 @@ test('a good build replaces the committed demo', () => {
   expect(result.status).toBe(0);
   expect(existsSync(join(dest, 'old.txt'))).toBe(false);
   expect(readFileSync(join(dest, 'index.html'), 'utf8').trim()).toBe('new');
+});
+
+test('a stale dist from an earlier build is not copied over the demo', () => {
+  const { dest, run } = setup(false, true);
+  const result = run();
+  expect(result.status).not.toBe(0);
+  expect(readFileSync(join(dest, 'old.txt'), 'utf8')).toBe('keep me');
 });

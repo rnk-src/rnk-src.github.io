@@ -418,7 +418,21 @@ test('the simulation shows a poster and a play link and loads nothing heavy befo
   );
 });
 
+// The demo loads Python (Pyodide) from jsDelivr. Skip the tests that run it when offline.
+async function cdnReachable() {
+  try {
+    const r = await fetch(
+      'https://cdn.jsdelivr.net/pyodide/v0.29.0/full/pyodide.js',
+      { method: 'HEAD', signal: AbortSignal.timeout(5000) },
+    );
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
+
 test('clicking play runs the simulation in the page', async ({ page }) => {
+  test.skip(!(await cdnReachable()), 'jsDelivr is not reachable');
   test.setTimeout(180_000);
   const problems: string[] = [];
   page.on('console', (m) => {
@@ -447,6 +461,7 @@ test('clicking play runs the simulation in the page', async ({ page }) => {
 test('the open simulation fits at 390px with no horizontal scroll', async ({
   page,
 }) => {
+  test.skip(!(await cdnReachable()), 'jsDelivr is not reachable');
   test.setTimeout(180_000);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -468,7 +483,10 @@ test('the simulation frame is dark from the first moment, before the demo paints
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.route('**/demos/mortar-pestle/index.html', (route) =>
-    route.fulfill({ contentType: 'text/html', body: '<body></body>' }),
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<body><canvas id="view"></canvas></body>',
+    }),
   );
   await page.goto('/');
   await page.locator('a[data-sim]').click();
@@ -476,6 +494,23 @@ test('the simulation frame is dark from the first moment, before the demo paints
     'background-color',
     'rgb(16, 20, 28)',
   );
+});
+
+test('when the demo page does not load, the play link comes back', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route('**/demos/mortar-pestle/index.html', (route) =>
+    route.fulfill({
+      status: 404,
+      contentType: 'text/html',
+      body: '<body>Not found</body>',
+    }),
+  );
+  await page.goto('/');
+  await page.locator('a[data-sim]').click();
+  await expect(page.locator('iframe.sim-frame')).toHaveCount(0);
+  await expect(page.locator('a[data-sim]')).toBeVisible();
 });
 
 test('when the demo reports an error, the play link comes back', async ({

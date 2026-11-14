@@ -290,24 +290,29 @@ const compare = shots.some((s) => s.after);
         link.replaceWith(iframe);
         iframe.focus();
 
-        // If the demo reports an error (no WebGL, blocked CDN, offline), put the link back.
-        // The frame is same-origin, so the page can watch the demo's own state.
-        iframe.addEventListener('load', () => {
-          const body = iframe.contentDocument?.body;
-          if (!body) return;
-          const check = () => {
-            if (body.dataset.state !== 'error') return;
-            watcher.disconnect();
-            observer.disconnect();
-            iframe.replaceWith(link);
-          };
-          const watcher = new MutationObserver(check);
-          watcher.observe(body, {
-            attributes: true,
-            attributeFilter: ['data-state'],
-          });
-          check();
-        });
+        // Put the link back if the demo page did not load (404, offline) or reports an
+        // error (no WebGL, blocked CDN). The frame is same-origin, so the page can read it.
+        const restore = () => {
+          watcher?.disconnect();
+          observer.disconnect();
+          iframe.replaceWith(link);
+        };
+        let watcher: MutationObserver | undefined;
+        iframe.addEventListener(
+          'load',
+          () => {
+            const body = iframe.contentDocument?.body;
+            if (!body?.querySelector('#view')) return restore();
+            const check = () => body.dataset.state === 'error' && restore();
+            watcher = new MutationObserver(check);
+            watcher.observe(body, {
+              attributes: true,
+              attributeFilter: ['data-state'],
+            });
+            check();
+          },
+          { once: true },
+        );
 
         let visible = true;
         const send = () =>
