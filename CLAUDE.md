@@ -9,6 +9,13 @@ Stack: Astro (static output), TypeScript, Playwright. Plan: `~/.claude/plans/enc
 
 - `make check` runs format check, lint, `astro check`, build and Playwright tests. Run it before every PR.
 - `npm run dev` starts the dev server.
+- `scripts/sync-mortar-demo.sh` builds the Mortar and Pestle simulation from `../mortar-and-pestle/web` into `public/demos/mortar-pestle`. Commit the output. Run it again after you change that demo.
+
+## Keep notes current
+
+- Update `PROGRESS.md` after every commit, push, PR or decision. Do not wait for `/handoff`.
+- Update this file when a command, convention or rule changes.
+- `PROGRESS.md` stays untracked. Never let it describe finished work as pending.
 
 ## Design skills to use
 

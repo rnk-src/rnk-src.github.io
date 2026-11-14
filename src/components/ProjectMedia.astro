@@ -11,16 +11,23 @@ interface Shot {
 interface Props {
   title: string;
   youtube?: string;
+  sim?: { src: string; poster: ImageMetadata; alt: string; size?: string };
   image?: Shot & { second?: Shot; mode?: 'pair' | 'toggle' };
 }
-const { title, youtube, image } = Astro.props;
+const { title, youtube, sim, image } = Astro.props;
+// A simulation runs in the page. Before the click it is only a poster and a link.
+const simUrl = sim
+  ? `${import.meta.env.BASE_URL.replace(/\/$/, '')}${sim.src}`
+  : undefined;
+const simOn = !!sim && !youtube;
+const simDescId = `sim-desc-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 const toggle = image?.mode === 'toggle' && !!image.second;
 const shots = image ? [image, ...(image.second ? [image.second] : [])] : [];
 const compare = shots.some((s) => s.after);
 ---
 
 <div
-  class:list={['media', { compare }]}
+  class:list={['media', { compare, sim: simOn }]}
   data-impeccable-ignore="cramped-padding"
 >
   {youtube ? (
@@ -41,6 +48,35 @@ const compare = shots.some((s) => s.after);
       />
       <span class="play" aria-hidden="true" />
       <span class="label">Play the {title} demo</span>
+    </a>
+  ) : simOn && sim ? (
+    <a
+      class="video"
+      href={simUrl}
+      target="_blank"
+      rel="noopener"
+      data-sim={simUrl}
+      data-title={`${title} simulation`}
+      aria-describedby={simDescId}
+    >
+      <Image
+        class="poster"
+        src={sim.poster}
+        alt=""
+        widths={[480, 720, 960, 1280]}
+        sizes="(max-width: 1000px) 90vw, 700px"
+        format="webp"
+        quality={80}
+        loading="lazy"
+      />
+      <span class="play" aria-hidden="true" />
+      <span class="label">
+        Run the simulation in your browser
+        {sim.size && <small>{sim.size} to download</small>}
+      </span>
+      <span id={simDescId} class="sr-only">
+        {sim.alt}
+      </span>
     </a>
   ) : shots.length ? (
     <div
@@ -237,6 +273,66 @@ const compare = shots.some((s) => s.after);
     });
 </script>
 
+<script>
+  // Load the simulation only after a click. Without JavaScript the link opens it in a new tab.
+  // The simulation stops itself while it is off screen, so it does not burn the battery.
+  document
+    .querySelectorAll<HTMLAnchorElement>('a[data-sim]')
+    .forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const iframe = document.createElement('iframe');
+        iframe.src = link.dataset.sim ?? '';
+        iframe.title = link.dataset.title ?? 'Project simulation';
+        iframe.allow = 'fullscreen';
+        iframe.allowFullscreen = true;
+        iframe.className = 'sim-frame';
+        link.replaceWith(iframe);
+        iframe.focus();
+
+        // Put the link back if the demo page did not load (404, offline) or reports an
+        // error (no WebGL, blocked CDN). The frame is same-origin, so the page can read it.
+        const restore = () => {
+          watcher?.disconnect();
+          observer.disconnect();
+          iframe.replaceWith(link);
+        };
+        let watcher: MutationObserver | undefined;
+        iframe.addEventListener(
+          'load',
+          () => {
+            const body = iframe.contentDocument?.body;
+            if (!body?.querySelector('#view')) return restore();
+            const check = () => body.dataset.state === 'error' && restore();
+            watcher = new MutationObserver(check);
+            watcher.observe(body, {
+              attributes: true,
+              attributeFilter: ['data-state'],
+            });
+            check();
+          },
+          { once: true },
+        );
+
+        let visible = true;
+        const send = () =>
+          iframe.contentWindow?.postMessage(
+            visible ? 'resume' : 'pause',
+            location.origin,
+          );
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            visible = entry.isIntersecting;
+            send();
+          },
+          { threshold: 0.1 },
+        );
+        observer.observe(iframe);
+        iframe.addEventListener('load', send);
+      });
+    });
+</script>
+
 <style>
   .media {
     --n: 4px;
@@ -276,6 +372,32 @@ const compare = shots.some((s) => s.after);
   }
   .media.compare {
     aspect-ratio: 4 / 3;
+  }
+  /* The simulation needs room for its controls on a phone. */
+  @media (max-width: 700px) {
+    .media.sim {
+      aspect-ratio: 4 / 3;
+    }
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  /* The iframe is made by script, so it has no Astro scope attribute. */
+  .media :global(.sim-frame) {
+    background: #10141c;
+    color-scheme: dark;
+  }
+  .video :global(img.poster) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .ba {
     position: relative;
@@ -455,6 +577,12 @@ const compare = shots.some((s) => s.after);
     margin-inline-start: 6px;
     border-block: 14px solid transparent;
     border-inline-start: 24px solid var(--accent);
+  }
+  .label small {
+    display: block;
+    font-weight: 400;
+    font-size: 0.8125rem;
+    color: var(--ink);
   }
   .label {
     position: absolute;

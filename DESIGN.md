@@ -203,6 +203,8 @@ A 32px single-colour pixel icon (GitHub mark, LinkedIn "in", envelope) beside a 
 
 A 16:9 notched frame. It holds either a "Demo coming soon" placeholder in the pixel face or a play panel for a YouTube demo. The play panel sits on the page background colour. Two chicks flank the play button, lean toward it and tilt their heads, each with a question mark above. The player loads only after a click, from the privacy-friendly domain. Without JavaScript the panel links to YouTube.
 
+A project can hold a live simulation instead of a video. The frame then shows a poster of the simulation under the same dark play button. A bold label below it reads "Run the simulation in your browser", with the download size in small type. The simulation loads into an iframe only after a click, and the page stops it while it is off screen. After the click the demo also fetches Python (Pyodide) from the jsDelivr CDN. If the demo reports an error, the play link returns. Without JavaScript the panel links to the simulation page. On phones the frame is 4:3, so the simulation keeps room for its controls. The built simulation lives in `public/demos/`. Rebuild it with `scripts/sync-mortar-demo.sh`.
+
 ### Sprites
 
 The moon, the planets and the penguins are SVG pixel art drawn from character grids. They are decorative and `aria-hidden`. A single chick also peeks out now and then from behind the card or the image in view. It shows only the eyes, half the face or the full face, at a random angle and spot on an edge with room, and never causes horizontal scroll. The penguin blinks, and the planets and shooting stars are the only moving background elements.

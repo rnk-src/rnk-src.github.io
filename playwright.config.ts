@@ -7,5 +7,16 @@ export default defineConfig({
     url: 'http://localhost:4399',
     reuseExistingServer: false,
   },
-  use: { baseURL: 'http://localhost:4399' },
+  use: {
+    baseURL: 'http://localhost:4399',
+    // Headless Chromium needs software WebGL for the in-page simulation.
+    launchOptions: {
+      args: [
+        '--use-gl=angle',
+        '--use-angle=swiftshader',
+        '--enable-unsafe-swiftshader',
+        '--ignore-gpu-blocklist',
+      ],
+    },
+  },
 });
