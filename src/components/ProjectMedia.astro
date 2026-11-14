@@ -290,19 +290,39 @@ const compare = shots.some((s) => s.after);
         link.replaceWith(iframe);
         iframe.focus();
 
+        // If the demo reports an error (no WebGL, blocked CDN, offline), put the link back.
+        // The frame is same-origin, so the page can watch the demo's own state.
+        iframe.addEventListener('load', () => {
+          const body = iframe.contentDocument?.body;
+          if (!body) return;
+          const check = () => {
+            if (body.dataset.state !== 'error') return;
+            watcher.disconnect();
+            observer.disconnect();
+            iframe.replaceWith(link);
+          };
+          const watcher = new MutationObserver(check);
+          watcher.observe(body, {
+            attributes: true,
+            attributeFilter: ['data-state'],
+          });
+          check();
+        });
+
         let visible = true;
         const send = () =>
           iframe.contentWindow?.postMessage(
             visible ? 'resume' : 'pause',
             location.origin,
           );
-        new IntersectionObserver(
+        const observer = new IntersectionObserver(
           ([entry]) => {
             visible = entry.isIntersecting;
             send();
           },
           { threshold: 0.1 },
-        ).observe(iframe);
+        );
+        observer.observe(iframe);
         iframe.addEventListener('load', send);
       });
     });
@@ -362,7 +382,8 @@ const compare = shots.some((s) => s.after);
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  .sim-frame {
+  /* The iframe is made by script, so it has no Astro scope attribute. */
+  .media :global(.sim-frame) {
     background: #10141c;
     color-scheme: dark;
   }
