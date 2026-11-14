@@ -93,12 +93,13 @@ test('contact links keep a text label and hide their pixel icons', async ({
   );
 });
 
-test('each project has a media slot: one demo video, three images, two placeholders', async ({
+test('each project has a media slot: one video, one simulation, three images, one placeholder', async ({
   page,
 }) => {
   await page.goto('/');
   await expect(page.locator('section.showcase')).toHaveCount(6);
-  await expect(page.getByText('Demo coming soon')).toHaveCount(2);
+  await expect(page.getByText('Demo coming soon')).toHaveCount(1);
+  await expect(page.locator('a[data-sim]')).toHaveCount(1);
   const video = page.locator('a[data-youtube]');
   await expect(video).toHaveCount(1);
   await expect(video).toHaveAttribute('href', /ugVnFpN2Pz0/);
@@ -389,4 +390,93 @@ test('the slider bar and grip stay inside the frame at both edges', async ({
       expect(r.x + r.width).toBeLessThanOrEqual(frame.x + frame.width + 0.5);
     }
   }
+});
+
+test('the simulation shows a poster and a play link and loads nothing heavy before a click', async ({
+  page,
+}) => {
+  const requested: string[] = [];
+  page.on('request', (r) => requested.push(r.url()));
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const link = page.locator('a[data-sim]');
+  await link.scrollIntoViewIfNeeded();
+  await expect(link).toHaveAccessibleName(/Run the simulation in your browser/);
+  await expect(link).toContainText('about 9 MB to download');
+  await expect(link).toHaveAccessibleDescription(/yellow SO-101/);
+  await expect(link).toHaveAttribute(
+    'href',
+    /\/demos\/mortar-pestle\/index\.html$/,
+  );
+  const poster = link.locator('img.poster');
+  await expect
+    .poll(() => poster.evaluate((el) => (el as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
+  await expect(page.locator('iframe.sim-frame')).toHaveCount(0);
+  expect(requested.filter((u) => /\/demos\/|jsdelivr|pyodide/.test(u))).toEqual(
+    [],
+  );
+});
+
+test('clicking play runs the simulation in the page', async ({ page }) => {
+  test.setTimeout(180_000);
+  const problems: string[] = [];
+  page.on('console', (m) => {
+    if (m.type() === 'error') problems.push(m.text());
+  });
+  page.on('pageerror', (e) => problems.push(String(e)));
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await page.locator('a[data-sim]').click();
+
+  const iframe = page.locator('iframe.sim-frame');
+  await expect(iframe).toHaveCount(1);
+  await expect(page.locator('a[data-sim]')).toHaveCount(0);
+  const frame = page.frameLocator('iframe.sim-frame');
+  await expect(frame.locator('body[data-state="running"]')).toBeAttached({
+    timeout: 120_000,
+  });
+  const canvas = frame.locator('canvas#view');
+  const box = await canvas.boundingBox();
+  expect(box!.width).toBeGreaterThan(200);
+
+  // The Python pipeline is ticking: the estimated forces update.
+  const demo = page
+    .frames()
+    .find((f) => f.url().includes('/demos/mortar-pestle/'))!;
+  await expect
+    .poll(
+      () =>
+        demo.evaluate(() => {
+          const w = window as unknown as {
+            __sim?: { latest?: { leader_force_n: number } | null };
+          };
+          return w.__sim?.latest?.leader_force_n ?? -1;
+        }),
+      {
+        timeout: 30_000,
+      },
+    )
+    .toBeGreaterThanOrEqual(0);
+  await expect(frame.getByRole('button', { name: 'Interpret' })).toBeVisible();
+  expect(problems).toEqual([]);
+});
+
+test('the open simulation fits at 390px with no horizontal scroll', async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.locator('a[data-sim]').click();
+  const frame = page.frameLocator('iframe.sim-frame');
+  await expect(frame.locator('body[data-state="running"]')).toBeAttached({
+    timeout: 120_000,
+  });
+  const box = await page.locator('iframe.sim-frame').boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(390);
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(390);
 });

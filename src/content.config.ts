@@ -18,6 +18,18 @@ const projects = defineCollection({
         .string()
         .regex(/^[\w-]{11}$/)
         .optional(),
+      // A simulation that runs in the page. The poster and a play button show first. The
+      // simulation loads into an iframe only after a click. src is a built static site
+      // under public/, made by scripts/sync-mortar-demo.sh. It wins over image, not youtube.
+      sim: z
+        .object({
+          src: z.string().startsWith('/demos/'),
+          poster: image(),
+          alt: z.string().min(1),
+          // Download size shown on the button, e.g. "about 9 MB".
+          size: z.string().optional(),
+        })
+        .optional(),
       // Demo image shown in the media frame. A second image makes a labelled pair.
       // Alt text is required. The YouTube demo wins if both are set.
       image: z
