@@ -321,6 +321,92 @@ test('the peeking penguin stays away with reduced motion', async ({ page }) => {
   await expect(page.locator('.peek')).toHaveCount(0);
 });
 
+// The guide chick waits for the page's own `sim-running` event, which ProjectMedia sends
+// when the simulation starts. Most tests send it by hand so they need no network.
+const startGuide = (page: import('@playwright/test').Page) =>
+  page.evaluate(() =>
+    document
+      .querySelector('a[data-sim]')!
+      .dispatchEvent(new CustomEvent('sim-running', { bubbles: true })),
+  );
+
+test('a guide chick pops up when the simulation starts, waves bye and leaves', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('a[data-sim]').scrollIntoViewIfNeeded();
+  await expect(page.locator('.guide')).toHaveCount(0);
+  await startGuide(page);
+
+  const guide = page.locator('.guide');
+  await expect(guide).toHaveClass(/out/, { timeout: 4000 });
+  await expect(guide).toHaveAttribute('aria-hidden', 'true');
+  expect(await guide.evaluate((el) => el.parentElement?.className)).toMatch(
+    /media-side/,
+  );
+  await expect(guide.locator('svg.penguin')).toHaveClass(/happy/);
+  await expect(guide.locator('.bubble')).toContainText('My hand');
+  await expect(guide.locator('.bubble')).toContainText('blue mortar');
+  expect(
+    await guide.evaluate((el) => getComputedStyle(el).zIndex),
+    'the chick rises from behind the frame',
+  ).toBe('-1');
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(1440);
+
+  await expect(guide.locator('svg.penguin')).toHaveClass(/waving/, {
+    timeout: 12_000,
+  });
+  await expect(guide.locator('.bubble')).toContainText('Bye');
+  await expect(page.locator('.guide')).toHaveCount(0, { timeout: 8000 });
+});
+
+test('the guide chick stays away with reduced motion', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await startGuide(page);
+  await page.waitForTimeout(2500);
+  await expect(page.locator('.guide')).toHaveCount(0);
+});
+
+test('the guide chick appears only once and keeps the page from scrolling sideways at 390px', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await startGuide(page);
+  await startGuide(page);
+  await expect(page.locator('.guide')).toHaveCount(1, { timeout: 4000 });
+  await expect(page.locator('.guide.out')).toHaveCount(1, { timeout: 4000 });
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(390);
+});
+
+test('no other chick peeks out while the guide chick is on screen', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('a[data-sim]').scrollIntoViewIfNeeded();
+  await startGuide(page);
+  await expect(page.locator('.guide.out')).toHaveCount(1, { timeout: 4000 });
+  await page.waitForTimeout(4000);
+  await expect(page.locator('.peek')).toHaveCount(0);
+});
+
+test('the real simulation starting sends the guide chick', async ({ page }) => {
+  test.skip(!(await cdnReachable()), 'jsDelivr is not reachable');
+  test.setTimeout(180_000);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('a[data-sim]').click();
+  await expect(
+    page.frameLocator('iframe.sim-frame').locator('body[data-state="running"]'),
+  ).toBeAttached({ timeout: 120_000 });
+  await expect(page.locator('.guide')).toHaveCount(1, { timeout: 4000 });
+});
+
 test('the before/after slider can be set by hand and keeps its labels', async ({
   page,
 }) => {

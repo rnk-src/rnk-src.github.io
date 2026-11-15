@@ -303,7 +303,18 @@ const compare = shots.some((s) => s.after);
           () => {
             const body = iframe.contentDocument?.body;
             if (!body?.querySelector('#view')) return restore();
-            const check = () => body.dataset.state === 'error' && restore();
+            let started = false;
+            const check = () => {
+              const state = body.dataset.state;
+              if (state === 'error') return restore();
+              // Tell the page the simulation is running, once. The guide chick listens.
+              if (state === 'running' && !started) {
+                started = true;
+                iframe.dispatchEvent(
+                  new CustomEvent('sim-running', { bubbles: true }),
+                );
+              }
+            };
             watcher = new MutationObserver(check);
             watcher.observe(body, {
               attributes: true,

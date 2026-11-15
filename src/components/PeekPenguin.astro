@@ -63,6 +63,8 @@ import Penguin from './Penguin.astro';
   }
 
   function peek() {
+    // The guide chick has the stage while it is out.
+    if (document.querySelector('.guide')) return;
     const row = rowInView();
     if (!row || !template) return;
     const sides = [
