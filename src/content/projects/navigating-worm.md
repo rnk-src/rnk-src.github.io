@@ -7,7 +7,7 @@ repo: https://github.com/rnk-src/navigating-worm
 sim:
   src: /demos/navigating-worm/index.html
   poster: ../../assets/projects/navigating-worm/poster.png
-  alt: A top-down map of stone, grass and sand with rocks and ditches. A purple route runs from the worm to a goal marker. A small follow-cam view shows the segmented worm on grass.
+  alt: The simulation as it opens. A top-down map of stone, grass and sand has a purple route to a goal marker. A follow-cam view shows the worm. Speed, follow cam, map settings, full screen and own-page buttons sit at the lower right.
   size: about 12 MB
   ready: '#boot'
   error: '#boot[data-state="error"]'
