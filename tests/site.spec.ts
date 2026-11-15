@@ -45,11 +45,12 @@ test('reduced motion stops the penguin blink and star twinkle', async ({
   expect(blink).toBe('none');
 });
 
-test('shows all six projects in order', async ({ page }) => {
+test('shows all seven projects in order', async ({ page }) => {
   await page.goto('/');
   const titles = await page.locator('article h3').allTextContents();
   expect(titles).toEqual([
     'Beverage Disposal Arm',
+    'Navigating Worm',
     'Assisted Mortar and Pestle',
     'Background Cleaner',
     'Microcontroller Pong',
@@ -67,7 +68,7 @@ test('repo links point to GitHub and missing repos say so', async ({
     .evaluateAll((els) => els.map((el) => (el as HTMLAnchorElement).href));
   for (const href of hrefs) expect(new URL(href).hostname).toBe('github.com');
   const soon = await page.getByText('Repo link coming soon').count();
-  expect(hrefs.length + soon).toBe(6);
+  expect(hrefs.length + soon).toBe(7);
 });
 
 test('every card is readable and fits at 390px', async ({ page }) => {
@@ -93,12 +94,12 @@ test('contact links keep a text label and hide their pixel icons', async ({
   );
 });
 
-test('each project has a media slot: one video, one simulation, three images, one placeholder', async ({
+test('each project has a media slot: one video, one simulation, three images, two placeholders', async ({
   page,
 }) => {
   await page.goto('/');
-  await expect(page.locator('section.showcase')).toHaveCount(6);
-  await expect(page.getByText('Demo coming soon')).toHaveCount(1);
+  await expect(page.locator('section.showcase')).toHaveCount(7);
+  await expect(page.getByText('Demo coming soon')).toHaveCount(2);
   await expect(page.locator('a[data-sim]')).toHaveCount(1);
   const video = page.locator('a[data-youtube]');
   await expect(video).toHaveCount(1);

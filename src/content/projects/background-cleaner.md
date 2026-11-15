@@ -2,7 +2,7 @@
 title: Background Cleaner
 tags: [Python, PyTorch]
 dates: Jul 2023 – Dec 2023
-order: 3
+order: 4
 repo: https://github.com/rnk-src/background-cleaner
 image:
   mode: toggle
