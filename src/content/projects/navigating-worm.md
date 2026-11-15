@@ -4,6 +4,15 @@ tags: [Python, MuJoCo, Stable-Baselines3]
 dates: Nov 2026 – Present
 order: 2
 repo: https://github.com/rnk-src/navigating-worm
+sim:
+  src: /demos/navigating-worm/index.html
+  poster: ../../assets/projects/navigating-worm/poster.png
+  alt: A top-down map of stone, grass and sand with rocks and ditches. A purple route runs from the worm to a goal marker. A small follow-cam view shows the segmented worm on grass.
+  size: about 12 MB
+  ready: '#boot'
+  error: '#boot[data-state="error"]'
+  running: '#boot[data-state="ready"]'
+  guide: false
 ---
 
 - Developing a camera-equipped, servo-driven worm robot that learns a terrain-adaptive gait through reinforcement learning in simulation and navigates to a target location
