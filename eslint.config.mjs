@@ -11,6 +11,7 @@ export default [
       '.claude/',
       '.codex/',
       'test-results/',
+      'public/demos/',
       'playwright-report/',
     ],
   },
