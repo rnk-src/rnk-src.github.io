@@ -5,7 +5,7 @@ interface Props {
   size?: number; // CSS pixels per sprite pixel
   flip?: boolean;
   class?: string;
-  happy?: boolean; // ^ ^ eyes instead of round ones
+  happy?: boolean; // lilac cheeks and an open beak
   wave?: boolean; // adds a right flipper that waves when the svg has the class "waving"
 }
 const {
@@ -41,14 +41,13 @@ const put = (x: number, y: number, c: string) => {
   rows[y][x] = c;
 };
 if (happy) {
-  // Each round eye becomes a small arch: one pixel on top, one on each side below.
-  // The arch sits one row low so white surrounds its top pixel and it stays readable.
-  for (const cx of [5, 10]) {
-    put(cx, 4, 'e');
-    put(cx - 1, 5, 'e');
-    put(cx, 5, 'w');
-    put(cx + 1, 5, 'e');
-  }
+  // Keep the round eyes: a dark eye next to the dark head blurs into it. Instead add
+  // lilac cheeks and let the beak open one row. Lilac is the site accent, so the amber
+  // beak stays the only warm colour.
+  put(4, 5, 'p');
+  put(11, 5, 'p');
+  put(7, 6, 'y');
+  put(8, 6, 'y');
 }
 // The right flipper has three poses: at rest, raised and out. The shoulder stays put.
 const restArm: [number, number][] = [
@@ -79,6 +78,7 @@ const fills: Record<string, string> = {
   g: 'var(--pg-body)',
   l: 'var(--pg-belly)',
   d: 'var(--pg-flipper)',
+  p: 'var(--accent)',
   f: 'var(--pg-feet)',
 };
 

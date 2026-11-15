@@ -362,6 +362,52 @@ test('a guide chick pops up when the simulation starts, waves bye and leaves', a
   await expect(page.locator('.guide')).toHaveCount(0, { timeout: 8000 });
 });
 
+test('the happy face has two eyes on white, blushing cheeks and an open beak', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const face = await page.evaluate(() => {
+    const svg = document
+      .querySelector<HTMLTemplateElement>('#sim-guide')!
+      .content.querySelector('svg')!;
+    const cell = new Map<string, string>();
+    for (const r of svg.querySelectorAll('rect')) {
+      if (r.closest('g')) continue; // flipper poses
+      const x = Number(r.getAttribute('x'));
+      const y = Number(r.getAttribute('y'));
+      const w = Number(r.getAttribute('width'));
+      for (let i = 0; i < w; i++)
+        cell.set(`${x + i},${y}`, r.getAttribute('fill')!);
+    }
+    const count = (fill: string) =>
+      [...cell.values()].filter((f) => f === fill).length;
+    const touching: string[] = [];
+    for (const [key, fill] of cell) {
+      if (fill !== 'var(--pg-eye)') continue;
+      const [x, y] = key.split(',').map(Number);
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ]) {
+        if (cell.get(`${x + dx},${y + dy}`) === 'var(--pg-head)')
+          touching.push(key);
+      }
+    }
+    return {
+      eyes: count('var(--pg-eye)'),
+      blush: count('var(--accent)'),
+      beak: count('var(--pg-beak)'),
+      touching,
+    };
+  });
+  expect(face.eyes, 'one pixel per eye').toBe(2);
+  expect(face.blush, 'one cheek pixel per side').toBe(2);
+  expect(face.beak, 'a beak two pixels wide and two tall').toBe(4);
+  expect(face.touching, 'eyes never touch the dark head').toEqual([]);
+});
+
 test('the guide chick stays away with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
