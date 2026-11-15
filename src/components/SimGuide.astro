@@ -12,13 +12,19 @@ import Penguin from './Penguin.astro';
   <p class="bubble">
     Tap My hand, then move over the blue mortar. Hold to press!
   </p>
+  <p class="bubble">
+    Up and down arrow keys, or +&nbsp;and&nbsp;−, change the push. The numbers
+    read in newtons.
+  </p>
+  <p class="bubble">Bye!</p>
 </template>
 
 <script>
   // ProjectMedia sends this event when the simulation reaches its running state.
   const FIRST_MS = 900; // let the simulation draw its first frame
   const POP_MS = 450; // the chick climbs out in five steps
-  const READ_MS = 6500; // time to read the bubble
+  const READ_MS = 6000; // time to read each bubble
+  const SWAP_MS = 350; // one bubble fades before the next one comes in
   const WAVE_MS = 2000;
 
   const template = document.querySelector<HTMLTemplateElement>('#sim-guide');
@@ -33,18 +39,26 @@ import Penguin from './Penguin.astro';
     guide.append(template.content.cloneNode(true));
     side.append(guide);
     const chick = guide.querySelector('svg')!;
-    const bubble = guide.querySelector('.bubble')!;
+    const [how, force, bye] = guide.querySelectorAll('.bubble');
 
+    // One bubble at a time: how to move, how to change the force, then the goodbye.
+    const at = (ms: number, fn: () => void) => setTimeout(fn, ms);
+    const t1 = POP_MS;
+    const t2 = t1 + READ_MS + SWAP_MS;
+    const t3 = t2 + READ_MS + SWAP_MS;
     requestAnimationFrame(() =>
       requestAnimationFrame(() => guide.classList.add('out')),
     );
-    setTimeout(() => bubble.classList.add('on'), POP_MS);
-    setTimeout(() => {
+    at(t1, () => how.classList.add('on'));
+    at(t2 - SWAP_MS, () => how.classList.remove('on'));
+    at(t2, () => force.classList.add('on'));
+    at(t3 - SWAP_MS, () => force.classList.remove('on'));
+    at(t3, () => {
       chick.classList.add('waving');
-      bubble.textContent = 'Bye!';
-    }, POP_MS + READ_MS);
-    setTimeout(() => guide.classList.remove('out'), POP_MS + READ_MS + WAVE_MS);
-    setTimeout(() => guide.remove(), 2 * POP_MS + READ_MS + WAVE_MS + 100);
+      bye.classList.add('on');
+    });
+    at(t3 + WAVE_MS, () => guide.classList.remove('out'));
+    at(t3 + WAVE_MS + POP_MS + 100, () => guide.remove());
   }
 
   document.addEventListener('sim-running', (event) => {

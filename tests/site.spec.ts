@@ -333,6 +333,7 @@ const startGuide = (page: import('@playwright/test').Page) =>
 test('a guide chick pops up when the simulation starts, waves bye and leaves', async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   await page.locator('a[data-sim]').scrollIntoViewIfNeeded();
@@ -346,8 +347,8 @@ test('a guide chick pops up when the simulation starts, waves bye and leaves', a
     /media-side/,
   );
   await expect(guide.locator('svg.penguin')).toHaveClass(/happy/);
-  await expect(guide.locator('.bubble')).toContainText('My hand');
-  await expect(guide.locator('.bubble')).toContainText('blue mortar');
+  await expect(guide.locator('.bubble.on')).toContainText('My hand');
+  await expect(guide.locator('.bubble.on')).toContainText('blue mortar');
   expect(
     await guide.evaluate((el) => getComputedStyle(el).zIndex),
     'the chick rises from behind the frame',
@@ -355,10 +356,16 @@ test('a guide chick pops up when the simulation starts, waves bye and leaves', a
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(1440);
 
+  // A second bubble follows the first and covers the force keys and the unit.
+  await expect(guide.locator('.bubble.on')).toContainText('arrow keys', {
+    timeout: 10_000,
+  });
+  await expect(guide.locator('.bubble.on')).toContainText('newtons');
+  await expect(guide.locator('.bubble.on')).toHaveCount(1);
   await expect(guide.locator('svg.penguin')).toHaveClass(/waving/, {
     timeout: 12_000,
   });
-  await expect(guide.locator('.bubble')).toContainText('Bye');
+  await expect(guide.locator('.bubble.on')).toContainText('Bye');
   await expect(page.locator('.guide')).toHaveCount(0, { timeout: 8000 });
 });
 
@@ -439,6 +446,38 @@ test('no other chick peeks out while the guide chick is on screen', async ({
   await expect(page.locator('.guide.out')).toHaveCount(1, { timeout: 4000 });
   await page.waitForTimeout(4000);
   await expect(page.locator('.peek')).toHaveCount(0);
+});
+
+test('the simulation shows live newtons beside the bars, even in a small frame', async ({
+  page,
+}) => {
+  test.skip(!(await cdnReachable()), 'jsDelivr is not reachable');
+  test.setTimeout(180_000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await page.locator('a[data-sim]').click();
+  const frame = page.frameLocator('iframe.sim-frame');
+  await expect(frame.locator('body[data-state="running"]')).toBeAttached({
+    timeout: 120_000,
+  });
+  // The frame is under 380 px tall, so the compact layout hides the text readout.
+  const height = await page
+    .locator('iframe.sim-frame')
+    .evaluate((el) => el.clientHeight);
+  expect(height).toBeLessThan(380);
+  const newtons = /^\d+(\.\d)? N$/;
+  await expect(frame.locator('#g-leader .val')).toBeVisible();
+  await expect(frame.locator('#g-leader .val')).toHaveText(newtons);
+  await expect(frame.locator('#g-follower .val')).toBeVisible();
+  await expect(frame.locator('#g-follower .val')).toHaveText(newtons);
+  // The push setting sits between the minus and plus buttons and follows the arrow keys.
+  await expect(frame.locator('#force-val')).toHaveText('6 N');
+  await page.keyboard.press('ArrowUp');
+  await expect(frame.locator('#force-val')).toHaveText('7 N');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
+  await expect(frame.locator('#force-val')).toHaveText('5 N');
 });
 
 test('the real simulation starting sends the guide chick', async ({ page }) => {
