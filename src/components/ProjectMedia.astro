@@ -303,11 +303,27 @@ const compare = shots.some((s) => s.after);
         link.replaceWith(iframe);
         iframe.focus();
 
+        // Full screen and a page of its own sit just below the frame.
+        const tools = document.createElement('div');
+        tools.className = 'sim-tools';
+        const full = document.createElement('button');
+        full.type = 'button';
+        full.textContent = 'Full screen';
+        full.addEventListener('click', () => void iframe.requestFullscreen?.());
+        const own = document.createElement('a');
+        own.href = link.dataset.sim ?? '';
+        own.target = '_blank';
+        own.rel = 'noopener';
+        own.textContent = 'Open in its own page';
+        tools.append(full, own);
+        iframe.closest('.media')?.after(tools);
+
         // Put the link back if the demo page did not load (404, offline) or reports an
         // error (no WebGL, blocked CDN). The frame is same-origin, so the page can read it.
         const restore = () => {
           watcher?.disconnect();
           observer.disconnect();
+          tools.remove();
           iframe.replaceWith(link);
         };
         let watcher: MutationObserver | undefined;
@@ -418,6 +434,28 @@ const compare = shots.some((s) => s.after);
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+  .media-side :global(.sim-tools) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-top: 12px;
+  }
+  .media-side :global(.sim-tools button),
+  .media-side :global(.sim-tools a) {
+    padding: 8px 0;
+    border: 0;
+    background: none;
+    color: var(--accent-strong);
+    font: inherit;
+    font-size: 0.9375rem;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+  .media-side :global(.sim-tools button:hover),
+  .media-side :global(.sim-tools a:hover) {
+    color: var(--ink);
   }
   /* The iframe is made by script, so it has no Astro scope attribute. */
   .media :global(.sim-frame) {

@@ -799,3 +799,45 @@ test('clicking play runs the real worm demo and a map click makes a route, at 39
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width).toBeLessThanOrEqual(390);
 });
+
+test('an open simulation offers full screen and its own page', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route(WORM_PAGE, (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<body><section id="boot" data-state="ready"></section></body>',
+    }),
+  );
+  await page.goto('/');
+  await page.locator('a[data-sim*="navigating-worm"]').click();
+  const bar = page.locator('.sim-tools');
+  await expect(bar).toHaveCount(1);
+  const own = bar.getByRole('link', { name: /own page/i });
+  await expect(own).toHaveAttribute(
+    'href',
+    /\/demos\/navigating-worm\/index\.html$/,
+  );
+  await expect(own).toHaveAttribute('target', '_blank');
+  await bar.getByRole('button', { name: /full screen/i }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.fullscreenElement?.className ?? ''),
+    )
+    .toContain('sim-frame');
+  await page.evaluate(() => document.exitFullscreen());
+});
+
+test('the tools go away when the demo fails and the poster returns', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route(WORM_PAGE, (route) =>
+    route.fulfill({ status: 404, contentType: 'text/html', body: 'no' }),
+  );
+  await page.goto('/');
+  await page.locator('a[data-sim*="navigating-worm"]').click();
+  await expect(page.locator('a[data-sim*="navigating-worm"]')).toBeVisible();
+  await expect(page.locator('.sim-tools')).toHaveCount(0);
+});
