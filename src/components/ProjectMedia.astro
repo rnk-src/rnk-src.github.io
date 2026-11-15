@@ -11,7 +11,16 @@ interface Shot {
 interface Props {
   title: string;
   youtube?: string;
-  sim?: { src: string; poster: ImageMetadata; alt: string; size?: string };
+  sim?: {
+    src: string;
+    poster: ImageMetadata;
+    alt: string;
+    size?: string;
+    ready: string;
+    error: string;
+    running: string;
+    guide: boolean;
+  };
   image?: Shot & { second?: Shot; mode?: 'pair' | 'toggle' };
 }
 const { title, youtube, sim, image } = Astro.props;
@@ -56,6 +65,10 @@ const compare = shots.some((s) => s.after);
       target="_blank"
       rel="noopener"
       data-sim={simUrl}
+      data-ready={sim.ready}
+      data-error={sim.error}
+      data-running={sim.running}
+      data-guide={String(sim.guide)}
       data-title={`${title} simulation`}
       aria-describedby={simDescId}
     >
@@ -302,13 +315,20 @@ const compare = shots.some((s) => s.after);
           'load',
           () => {
             const body = iframe.contentDocument?.body;
-            if (!body?.querySelector('#view')) return restore();
+            if (!body) return restore();
+            const has = (selector?: string) =>
+              !!selector &&
+              (body.matches(selector) || !!body.querySelector(selector));
+            if (!has(link.dataset.ready)) return restore();
             let started = false;
             const check = () => {
-              const state = body.dataset.state;
-              if (state === 'error') return restore();
+              if (has(link.dataset.error)) return restore();
               // Tell the page the simulation is running, once. The guide chick listens.
-              if (state === 'running' && !started) {
+              if (
+                link.dataset.guide !== 'false' &&
+                has(link.dataset.running) &&
+                !started
+              ) {
                 started = true;
                 iframe.dispatchEvent(
                   new CustomEvent('sim-running', { bubbles: true }),
@@ -318,6 +338,7 @@ const compare = shots.some((s) => s.after);
             watcher = new MutationObserver(check);
             watcher.observe(body, {
               attributes: true,
+              subtree: true,
               attributeFilter: ['data-state'],
             });
             check();

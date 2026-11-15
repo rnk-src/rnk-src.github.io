@@ -10,10 +10,13 @@ import {
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-const script = resolve('scripts/sync-mortar-demo.sh');
+const scripts = [
+  'scripts/sync-mortar-demo.sh',
+  'scripts/sync-worm-demo.sh',
+].map((s) => resolve(s));
 
 // A fake repo and a fake npm. The fake `npm run build` makes dist only when asked.
-function setup(buildMakesDist: boolean, staleDist = false) {
+function setup(script: string, buildMakesDist: boolean, staleDist = false) {
   const dir = mkdtempSync(join(tmpdir(), 'sync-'));
   const src = join(dir, 'repo');
   const bin = join(dir, 'bin');
@@ -43,24 +46,27 @@ function setup(buildMakesDist: boolean, staleDist = false) {
   return { dest, run };
 }
 
-test('a build that makes no dist fails and keeps the committed demo', () => {
-  const { dest, run } = setup(false);
-  const result = run();
-  expect(result.status).not.toBe(0);
-  expect(readFileSync(join(dest, 'old.txt'), 'utf8')).toBe('keep me');
-});
+for (const script of scripts) {
+  const name = script.split('/').pop();
+  test(`${name}: a build that makes no dist fails and keeps the committed demo`, () => {
+    const { dest, run } = setup(script, false);
+    const result = run();
+    expect(result.status).not.toBe(0);
+    expect(readFileSync(join(dest, 'old.txt'), 'utf8')).toBe('keep me');
+  });
 
-test('a good build replaces the committed demo', () => {
-  const { dest, run } = setup(true);
-  const result = run();
-  expect(result.status).toBe(0);
-  expect(existsSync(join(dest, 'old.txt'))).toBe(false);
-  expect(readFileSync(join(dest, 'index.html'), 'utf8').trim()).toBe('new');
-});
+  test(`${name}: a good build replaces the committed demo`, () => {
+    const { dest, run } = setup(script, true);
+    const result = run();
+    expect(result.status).toBe(0);
+    expect(existsSync(join(dest, 'old.txt'))).toBe(false);
+    expect(readFileSync(join(dest, 'index.html'), 'utf8').trim()).toBe('new');
+  });
 
-test('a stale dist from an earlier build is not copied over the demo', () => {
-  const { dest, run } = setup(false, true);
-  const result = run();
-  expect(result.status).not.toBe(0);
-  expect(readFileSync(join(dest, 'old.txt'), 'utf8')).toBe('keep me');
-});
+  test(`${name}: a stale dist from an earlier build is not copied over the demo`, () => {
+    const { dest, run } = setup(script, false, true);
+    const result = run();
+    expect(result.status).not.toBe(0);
+    expect(readFileSync(join(dest, 'old.txt'), 'utf8')).toBe('keep me');
+  });
+}

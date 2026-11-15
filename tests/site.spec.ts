@@ -94,13 +94,13 @@ test('contact links keep a text label and hide their pixel icons', async ({
   );
 });
 
-test('each project has a media slot: one video, one simulation, three images, two placeholders', async ({
+test('each project has a media slot: one video, two simulations, three images, one placeholder', async ({
   page,
 }) => {
   await page.goto('/');
   await expect(page.locator('section.showcase')).toHaveCount(7);
-  await expect(page.getByText('Demo coming soon')).toHaveCount(2);
-  await expect(page.locator('a[data-sim]')).toHaveCount(1);
+  await expect(page.getByText('Demo coming soon')).toHaveCount(1);
+  await expect(page.locator('a[data-sim]')).toHaveCount(2);
   const video = page.locator('a[data-youtube]');
   await expect(video).toHaveCount(1);
   await expect(video).toHaveAttribute('href', /ugVnFpN2Pz0/);
@@ -326,7 +326,7 @@ test('the peeking penguin stays away with reduced motion', async ({ page }) => {
 const startGuide = (page: import('@playwright/test').Page) =>
   page.evaluate(() =>
     document
-      .querySelector('a[data-sim]')!
+      .querySelector('a[data-sim*="mortar-pestle"]')!
       .dispatchEvent(new CustomEvent('sim-running', { bubbles: true })),
   );
 
@@ -336,7 +336,7 @@ test('a guide chick pops up when the simulation starts, waves bye and leaves', a
   test.setTimeout(60_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await page.locator('a[data-sim]').scrollIntoViewIfNeeded();
+  await page.locator('a[data-sim*="mortar-pestle"]').scrollIntoViewIfNeeded();
   await expect(page.locator('.guide')).toHaveCount(0);
   await startGuide(page);
 
@@ -441,7 +441,7 @@ test('no other chick peeks out while the guide chick is on screen', async ({
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await page.locator('a[data-sim]').scrollIntoViewIfNeeded();
+  await page.locator('a[data-sim*="mortar-pestle"]').scrollIntoViewIfNeeded();
   await startGuide(page);
   await expect(page.locator('.guide.out')).toHaveCount(1, { timeout: 4000 });
   await page.waitForTimeout(4000);
@@ -456,7 +456,7 @@ test('the simulation shows live newtons beside the bars, even in a small frame',
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await page.locator('a[data-sim]').click();
+  await page.locator('a[data-sim*="mortar-pestle"]').click();
   const frame = page.frameLocator('iframe.sim-frame');
   await expect(frame.locator('body[data-state="running"]')).toBeAttached({
     timeout: 120_000,
@@ -485,7 +485,7 @@ test('the real simulation starting sends the guide chick', async ({ page }) => {
   test.setTimeout(180_000);
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
-  await page.locator('a[data-sim]').click();
+  await page.locator('a[data-sim*="mortar-pestle"]').click();
   await expect(
     page.frameLocator('iframe.sim-frame').locator('body[data-state="running"]'),
   ).toBeAttached({ timeout: 120_000 });
@@ -571,7 +571,7 @@ test('the simulation shows a poster and a play link and loads nothing heavy befo
   page.on('request', (r) => requested.push(r.url()));
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const link = page.locator('a[data-sim]');
+  const link = page.locator('a[data-sim*="mortar-pestle"]');
   await link.scrollIntoViewIfNeeded();
   await expect(link).toHaveAccessibleName(/Run the simulation in your browser/);
   await expect(link).toContainText('about 9 MB to download');
@@ -613,11 +613,11 @@ test('clicking play runs the simulation in the page', async ({ page }) => {
   page.on('pageerror', (e) => problems.push(String(e)));
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await page.locator('a[data-sim]').click();
+  await page.locator('a[data-sim*="mortar-pestle"]').click();
 
   const iframe = page.locator('iframe.sim-frame');
   await expect(iframe).toHaveCount(1);
-  await expect(page.locator('a[data-sim]')).toHaveCount(0);
+  await expect(page.locator('a[data-sim*="mortar-pestle"]')).toHaveCount(0);
   const frame = page.frameLocator('iframe.sim-frame');
   await expect(frame.locator('body[data-state="running"]')).toBeAttached({
     timeout: 120_000,
@@ -638,7 +638,7 @@ test('the open simulation fits at 390px with no horizontal scroll', async ({
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.locator('a[data-sim]').click();
+  await page.locator('a[data-sim*="mortar-pestle"]').click();
   const frame = page.frameLocator('iframe.sim-frame');
   await expect(frame.locator('body[data-state="running"]')).toBeAttached({
     timeout: 120_000,
@@ -661,7 +661,7 @@ test('the simulation frame is dark from the first moment, before the demo paints
     }),
   );
   await page.goto('/');
-  await page.locator('a[data-sim]').click();
+  await page.locator('a[data-sim*="mortar-pestle"]').click();
   await expect(page.locator('iframe.sim-frame')).toHaveCSS(
     'background-color',
     'rgb(16, 20, 28)',
@@ -680,9 +680,9 @@ test('when the demo page does not load, the play link comes back', async ({
     }),
   );
   await page.goto('/');
-  await page.locator('a[data-sim]').click();
+  await page.locator('a[data-sim*="mortar-pestle"]').click();
   await expect(page.locator('iframe.sim-frame')).toHaveCount(0);
-  await expect(page.locator('a[data-sim]')).toBeVisible();
+  await expect(page.locator('a[data-sim*="mortar-pestle"]')).toBeVisible();
 });
 
 test('when the demo reports an error, the play link comes back', async ({
@@ -696,11 +696,106 @@ test('when the demo reports an error, the play link comes back', async ({
     }),
   );
   await page.goto('/');
-  await page.locator('a[data-sim]').click();
+  await page.locator('a[data-sim*="mortar-pestle"]').click();
   await expect(page.locator('iframe.sim-frame')).toHaveCount(0);
-  await expect(page.locator('a[data-sim]')).toBeVisible();
-  await expect(page.locator('a[data-sim]')).toHaveAttribute(
+  await expect(page.locator('a[data-sim*="mortar-pestle"]')).toBeVisible();
+  await expect(page.locator('a[data-sim*="mortar-pestle"]')).toHaveAttribute(
     'href',
     /\/demos\/mortar-pestle\/index\.html$/,
   );
+});
+
+// The worm demo has its own page, so the project file names the elements the card watches.
+const WORM_PAGE = '**/demos/navigating-worm/index.html';
+
+test('the worm card shows a poster and a play link and loads nothing heavy before a click', async ({
+  page,
+}) => {
+  const requested: string[] = [];
+  page.on('request', (r) => requested.push(r.url()));
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  const link = page.locator('a[data-sim*="navigating-worm"]');
+  await link.scrollIntoViewIfNeeded();
+  await expect(link).toHaveAccessibleName(/Run the simulation in your browser/);
+  await expect(link).toHaveAttribute(
+    'href',
+    /\/demos\/navigating-worm\/index\.html$/,
+  );
+  await expect(link).toHaveAccessibleDescription(/worm/i);
+  await expect
+    .poll(() =>
+      link
+        .locator('img.poster')
+        .evaluate((el) => (el as HTMLImageElement).naturalWidth),
+    )
+    .toBeGreaterThan(0);
+  await expect(page.locator('iframe.sim-frame')).toHaveCount(0);
+  expect(requested.filter((u) => /\/demos\/|jsdelivr|pyodide/.test(u))).toEqual(
+    [],
+  );
+});
+
+test('when the worm demo reports a start-up error, the play link comes back', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route(WORM_PAGE, (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<body><section id="boot" data-state="loading"></section><script>setTimeout(() => (document.getElementById("boot").dataset.state = "error"), 100)</script></body>',
+    }),
+  );
+  await page.goto('/');
+  await page.locator('a[data-sim*="navigating-worm"]').click();
+  await expect(page.locator('iframe.sim-frame')).toHaveCount(0);
+  await expect(page.locator('a[data-sim*="navigating-worm"]')).toBeVisible();
+});
+
+test('a worm demo that starts keeps its frame and does not call the guide chick', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route(WORM_PAGE, (route) =>
+    route.fulfill({
+      contentType: 'text/html',
+      body: '<body><section id="boot" data-state="loading"></section><script>setTimeout(() => (document.getElementById("boot").dataset.state = "ready"), 100)</script></body>',
+    }),
+  );
+  await page.goto('/');
+  await page.locator('a[data-sim*="navigating-worm"]').scrollIntoViewIfNeeded();
+  await page.evaluate(() => {
+    (window as unknown as { heard: number }).heard = 0;
+    document.addEventListener(
+      'sim-running',
+      () => (window as unknown as { heard: number }).heard++,
+    );
+  });
+  await page.locator('a[data-sim*="navigating-worm"]').click();
+  await page.waitForTimeout(600);
+  await expect(page.locator('iframe.sim-frame')).toHaveCount(1);
+  expect(
+    await page.evaluate(() => (window as unknown as { heard: number }).heard),
+  ).toBe(0);
+});
+
+test('clicking play runs the real worm demo and a map click makes a route, at 390px', async ({
+  page,
+}) => {
+  test.skip(!(await cdnReachable()), 'jsDelivr is not reachable');
+  test.setTimeout(180_000);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.locator('a[data-sim*="navigating-worm"]').click();
+  const frame = page.frameLocator('iframe.sim-frame');
+  await expect(frame.locator('#boot[data-state="ready"]')).toBeAttached({
+    timeout: 120_000,
+  });
+  await frame.locator('#map').click({ position: { x: 60, y: 60 } });
+  await expect(frame.locator('#verdict')).toContainText(/Route|Can/, {
+    timeout: 10_000,
+  });
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(390);
 });

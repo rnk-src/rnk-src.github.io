@@ -21,7 +21,7 @@ const projects = defineCollection({
           .optional(),
         // A simulation that runs in the page. The poster and a play button show first. The
         // simulation loads into an iframe only after a click. src is a built static site
-        // under public/, made by scripts/sync-mortar-demo.sh. Set it instead of image, not with it.
+        // under public/, made by scripts/sync-mortar-demo.sh or scripts/sync-worm-demo.sh. Set it instead of image, not with it.
         sim: z
           .object({
             src: z.string().startsWith('/demos/'),
@@ -29,6 +29,15 @@ const projects = defineCollection({
             alt: z.string().min(1),
             // Download size shown on the button, e.g. "about 9 MB".
             size: z.string().optional(),
+            // What the card watches inside the demo page. The defaults suit the mortar demo.
+            // ready: an element that must exist, or the card shows the poster again.
+            // error: when this matches, the card shows the poster again.
+            // running: when this matches, the card sends `sim-running` (if guide is true).
+            ready: z.string().default('#view'),
+            error: z.string().default('body[data-state="error"]'),
+            running: z.string().default('body[data-state="running"]'),
+            // Whether the guide chick greets this demo. Its words are about the mortar demo.
+            guide: z.boolean().default(true),
           })
           .optional(),
         // Demo image shown in the media frame. A second image makes a labelled pair.
