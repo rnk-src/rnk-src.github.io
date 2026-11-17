@@ -16,5 +16,5 @@ sim:
 ---
 
 - Developing a camera-equipped, servo-driven worm robot that learns a terrain-adaptive gait through reinforcement learning in simulation and navigates to a target location
-- 3.3× faster than a hand-coded gait and 35–43% faster than a flat-ground policy across every simulated surface
+- 3.2× faster than a hand-coded gait and 33–38% faster than a flat-ground policy across every simulated surface
 - Planning routes with A* over a terrain cost map around rocks, ditches and slopes, replanning when the worm gets stuck
