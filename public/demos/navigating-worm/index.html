@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Navigating Worm</title>
+<style>
+  /* Type: Atkinson Hyperlegible only, in a fixed scale. The files are relative so the page
+     works from any folder. */
+  @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-display: swap;
+               src: url(fonts/atkinson-hyperlegible-400.woff2) format("woff2"); }
+  @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-display: swap;
+               src: url(fonts/atkinson-hyperlegible-700.woff2) format("woff2"); }
+
+  :root {
+    color-scheme: dark;
+    --ground: #07060f;   /* night sky */
+    --panel: #0f0b20;    /* panels */
+    --chip: #151030;     /* controls */
+    --line: #2a2358;     /* 2px lines */
+    --line-strong: #4a3f96;
+    --ink: #ece8ff;
+    --muted: #b6aedd;
+    --faint: #8f86bd;
+    --accent: #b79cff;   /* the one accent: selection, focus, the route */
+    --accent-bright: #d4c4ff;
+    --amber: #ffb454;    /* refusals and failures only */
+    --pad: 16px;
+    --gap: 12px;
+    --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: var(--ground); color: var(--ink); font: 400 14px/1.45 var(--body);
+         overflow: hidden; accent-color: var(--accent); caret-color: var(--accent); }
+  ::selection { background: var(--line-strong); color: var(--ink); }
+  * { scrollbar-width: thin; scrollbar-color: var(--line-strong) var(--panel); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--panel); }
+  ::-webkit-scrollbar-thumb { background: var(--line-strong); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Notched panel: a 2px line with the corner pixel cut away. */
+  .notch, .verdict { --n: 4px; background: var(--panel); border: 2px solid var(--line); color: var(--muted);
+    clip-path: polygon(0 var(--n), var(--n) var(--n), var(--n) 0, calc(100% - var(--n)) 0,
+      calc(100% - var(--n)) var(--n), 100% var(--n), 100% calc(100% - var(--n)),
+      calc(100% - var(--n)) calc(100% - var(--n)), calc(100% - var(--n)) 100%, var(--n) 100%,
+      var(--n) calc(100% - var(--n)), 0 calc(100% - var(--n))); }
+
+  /* Controls: one button family. */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 36px; padding: 6px 12px; font: 700 14px/1 var(--body); color: var(--ink);
+    background: var(--chip); border: 2px solid var(--line); cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background-color 0.15s; }
+  a.btn { text-decoration: none; }
+  .btn:hover:not(:disabled) { border-color: var(--line-strong); color: var(--accent-bright); }
+  .btn:active:not(:disabled) { background: var(--line); }
+  .btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-bright); }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--ground); }
+  .btn.primary:hover:not(:disabled) { background: var(--accent-bright); border-color: var(--accent-bright);
+    color: var(--ground); }
+  .btn.icon { padding: 6px; min-width: 36px; }
+  .ico { width: 16px; height: 16px; fill: currentColor; flex: none; }
+  @media (pointer: coarse) { .btn { min-height: 44px; } .btn.icon { min-width: 44px; } }
+
+  /* Layout. JS sets data-layout: "wide" (side gutters), "tall" (rows above and below) or
+     "tight" (controls float over the map's corners). */
+  .app { position: fixed; inset: 0; container-type: size; }
+  .stage { position: absolute; inset: 0; padding: var(--pad); display: grid; gap: var(--gap);
+    --m: min(calc(100cqw - 2 * var(--pad)), calc(100cqh - 2 * var(--pad))); }
+  .mapwrap { grid-area: map; position: relative; width: var(--m); height: var(--m); align-self: center;
+    justify-self: center; background: var(--panel); border: 2px solid var(--line); }
+  #map { display: block; width: 100%; height: 100%; cursor: crosshair; touch-action: manipulation; }
+  #map:focus-visible { outline-offset: 0; }
+
+  .side { display: contents; }
+  .app[data-layout="wide"] .stage { grid-template-columns: minmax(0, 1fr) var(--m) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr); grid-template-areas: "left map right"; }
+  .app[data-layout="wide"] .side { display: flex; flex-direction: column; gap: var(--gap); min-width: 0; }
+  .app[data-layout="wide"] .side.left { grid-area: left; }
+  .app[data-layout="wide"] .side.right { grid-area: right; }
+  .app[data-layout="wide"] .side > * { align-self: stretch; }
+  .app[data-layout="wide"] .buttons { margin-top: auto; }
+  .app[data-layout="tall"] .stage { grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto var(--m) auto auto; align-content: center;
+    grid-template-areas: "status buttons" "map map" "legend legend" "transport transport"; }
+  .app[data-layout="tall"] .mapwrap { justify-self: stretch; width: auto; }
+  .app[data-layout="tight"] .stage { display: block; }
+  .app[data-layout="tight"] .mapwrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  .app[data-layout="tight"] .status { position: absolute; left: calc(var(--pad) + 8px); top: calc(var(--pad) + 8px); }
+  .app[data-layout="tight"] .buttons { position: absolute; right: calc(var(--pad) + 8px); top: calc(var(--pad) + 8px); flex-direction: row; }
+  .app[data-layout="tight"] .transport { position: absolute; left: 50%; bottom: calc(var(--pad) + 8px); transform: translateX(-50%); }
+  .app[data-layout="tight"] .cam { position: absolute; right: calc(var(--pad) + 8px); top: calc(var(--pad) + 52px); width: 38%; max-width: 160px; }
+  .app[data-layout="tight"] .legend, .app[data-layout="tight"] .readout { display: none; }
+  .app[data-layout="tall"] .legend ul { flex-direction: row; flex-wrap: wrap; gap: 4px 16px; }
+  .app[data-layout="tall"] .transport { justify-self: center; }
+  .app[data-layout="tall"] .cam { position: absolute; right: calc(var(--pad) + 8px); top: calc(var(--pad) + 64px); width: 38%; max-width: 200px; z-index: 2; }
+
+  /* Panels. */
+  .status, .legend, .transport, .buttons, .cam { z-index: 2; }
+  .status { grid-area: status; padding: 10px 12px; align-self: start; }
+  .legend { grid-area: legend; padding: 10px 12px; align-self: start; }
+  .transport { grid-area: transport; padding: 6px; display: flex; flex-wrap: wrap; gap: 6px; align-self: start; }
+  .buttons { grid-area: buttons; display: flex; flex-direction: column; gap: 6px; }
+  .speeds { display: flex; gap: 6px; }
+  .app[data-layout="wide"] .speeds { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; }
+  .app[data-layout="wide"] .transport { flex-direction: column; flex-wrap: nowrap; }
+  .app[data-layout="wide"] .side.right { container-type: inline-size; }
+  .cam { grid-area: cam; padding: 0; align-self: start; background: var(--ground); }
+  .cam img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; background: var(--ground); }
+  .state-text { margin: 0; display: flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 700; font-size: 16px; }
+  .dot { width: 10px; height: 10px; background: var(--faint); flex: none; }
+  [data-status="driving"] .dot { background: var(--accent); }
+  [data-status="reached"] .dot { background: var(--ink); }
+  [data-status="failed"] .dot, [data-status="offline"] .dot { background: var(--amber); }
+  [data-status="paused"] .dot { background: transparent; border: 2px solid var(--muted); }
+  [data-status="failed"] .state-label, [data-status="offline"] .state-label { color: var(--amber); }
+  .readout { margin: 8px 0 0; display: grid; gap: 2px; }
+  .readout div { display: flex; justify-content: space-between; gap: 12px; }
+  .readout dt { color: var(--faint); }
+  .readout dd { margin: 0; color: var(--ink); }
+  #state-surface { text-transform: capitalize; }
+  .legend ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .legend li { display: flex; align-items: center; gap: 8px; }
+  .sw { width: 12px; height: 12px; flex: none; border: 1px solid var(--ground); }
+  .sw.stone { background: rgb(150, 150, 155); } .sw.grass { background: rgb(96, 160, 80); }
+  .sw.sand { background: rgb(214, 190, 140); } .sw.rock { background: rgb(60, 56, 54); border-color: var(--faint); }
+
+  /* The answer to a click, where the click landed. */
+  .verdict { position: absolute; z-index: 3; width: max-content; max-width: min(240px, 70%); padding: 8px 12px;
+    border-color: var(--line-strong); pointer-events: none; animation: appear 0.15s ease-out; }
+  .verdict p { margin: 0; }
+  .verdict .title { color: var(--ink); font-weight: 700; }
+  .verdict[data-kind="refused"] { border-color: var(--amber); }
+  .verdict[data-kind="refused"] .title { color: var(--amber); }
+  @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+  .hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); margin: 0; padding: 4px 10px;
+    background: color-mix(in srgb, var(--panel) 92%, transparent); border: 2px solid var(--line);
+    color: var(--muted); text-align: center; max-width: calc(100% - 16px); pointer-events: none; }
+  .app[data-layout="tight"] .hint { bottom: 64px; }
+
+  /* Map settings drawer. It opens on request and closes with Esc. */
+  .drawer { position: absolute; z-index: 5; top: 0; right: 0; bottom: 0; width: min(100%, 300px); padding: var(--pad);
+    background: var(--panel); border-left: 2px solid var(--line-strong); overflow-y: auto; }
+  .drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .drawer h2 { margin: 0; font-size: 16px; color: var(--ink); }
+  fieldset { margin: 12px 0 0; padding: 0; border: 0; min-width: 0; }
+  legend { padding: 0; margin-bottom: 4px; color: var(--ink); font-weight: 700; }
+  .field { display: grid; gap: 2px; margin-top: 8px; }
+  .field label { display: flex; justify-content: space-between; color: var(--muted); }
+  .field output { color: var(--ink); }
+  input[type="number"], select { width: 100%; min-height: 36px; padding: 6px 8px; font: 400 14px/1 var(--body);
+    color: var(--ink); background: var(--chip); border: 2px solid var(--line); border-radius: 0; }
+  input[type="number"]:hover, select:hover { border-color: var(--line-strong); }
+  input[type="range"] { width: 100%; margin: 4px 0; }
+  .map-error { min-height: 1.45em; margin: 12px 0 0; color: var(--amber); }
+  .drawer .primary { width: 100%; margin-top: 8px; }
+
+
+  /* Narrow gutters or a narrow stacked frame: the two buttons keep only their icons. */
+  @container (max-width: 170px) { .buttons { flex-direction: row; flex-wrap: wrap; } .buttons .label { display: none; } .buttons .btn { padding: 6px; min-width: 36px; } }
+  @container (max-width: 480px) { .app[data-layout="tall"] .buttons .label { display: none; } .app[data-layout="tall"] .buttons .btn { padding: 6px; min-width: 36px; } }
+  .app[data-layout="tall"] .readout { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+  .app[data-layout="tall"] .readout div { gap: 6px; }
+  .app[data-layout="tall"] .transport { flex-wrap: nowrap; }
+  .app[data-layout="tall"] .speeds .btn { padding: 6px 9px; }
+  .app[data-layout="tight"] .btn { min-height: 28px; }
+  @media (pointer: coarse) { .app[data-layout="tight"] .btn { min-height: 44px; } }
+
+  /* Short frames, such as the project card: the gutters are only about 120 px wide, so the
+     controls shrink, the two buttons lose their words and the readout stacks. */
+  @container (max-height: 420px) {
+    .stage { --pad: 12px; --gap: 8px; }
+    .btn { min-height: 32px; padding: 4px 8px; font-size: 13px; }
+    .status, .legend { padding: 8px 10px; }
+    .state-text { font-size: 14px; }
+    .readout { margin-top: 6px; gap: 4px; }
+    .readout div { flex-direction: column; gap: 0; }
+    .readout dt { font-size: 12px; }
+    .legend ul { gap: 2px; }
+    .legend li { font-size: 13px; }
+    .transport { padding: 4px; gap: 4px; }
+    .app[data-layout="wide"] .speeds { grid-template-columns: repeat(auto-fill, minmax(32px, 1fr)); gap: 4px; }
+    .speeds .btn { padding: 4px 0; min-width: 0; }
+    .app[data-layout="tight"] .speeds { gap: 4px; }
+    .app[data-layout="tight"] .transport { flex-wrap: nowrap; }
+    .buttons { flex-direction: row; gap: 4px; }
+    .buttons .label { display: none; }
+    .buttons .btn { padding: 6px; min-width: 32px; }
+    .hint { font-size: 13px; padding: 2px 8px; }
+  }
+
+  /* Shown while another data source, such as the browser engine, starts up. */
+  .app[data-booting] .stage { visibility: hidden; }
+  .boot { position: absolute; z-index: 10; inset: 0; margin: auto; width: min(320px, calc(100% - 2 * var(--pad)));
+    height: fit-content; padding: 16px; }
+  .boot p { margin: 0; }
+  .boot-title { color: var(--ink); font-weight: 700; font-size: 16px; }
+  .boot-detail { margin-top: 4px; min-height: 1.45em; }
+  .boot-dots { display: flex; gap: 6px; margin-bottom: 12px; }
+  .boot-dots i { width: 10px; height: 10px; background: var(--line-strong); }
+  .boot[data-state="error"] .boot-title { color: var(--amber); }
+  .boot[data-state="error"] .boot-dots { display: none; }
+  .boot .btn { margin-top: 12px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .boot-dots i { animation: boot 1.2s steps(1) infinite; }
+    .boot-dots i:nth-child(2) { animation-delay: 0.4s; }
+    .boot-dots i:nth-child(3) { animation-delay: 0.8s; }
+    @keyframes boot { 0%, 100% { background: var(--line-strong); } 33% { background: var(--accent); } }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-status="driving"] .dot { animation: pulse 1.2s steps(2) infinite; }
+    @keyframes pulse { 50% { opacity: 0.35; } }
+  }
+  @media (prefers-reduced-motion: reduce) { .verdict { animation: none; } .btn { transition: none; } }
+</style>
+  <script type="module" crossorigin src="./assets/index-bM0fXKWf.js"></script>
+</head>
+<body>
+<div class="app" id="app" data-layout="tight">
+  <div class="stage">
+    <div class="side left">
+    <section class="status notch" aria-label="Worm status">
+      <p class="state-text" id="state-text" data-status="idle" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span><span class="state-label" id="state-label">Ready</span>
+      </p>
+      <dl class="readout">
+        <div><dt>Surface</dt><dd id="state-surface">-</dd></div>
+        <div><dt>Replans</dt><dd class="num" id="state-replans">0</dd></div>
+        <div><dt>Sim time</dt><dd class="num" id="state-time">0.0 s</dd></div>
+      </dl>
+    </section>
+
+    <section class="legend notch" id="legend" aria-label="Map legend">
+      <ul>
+        <li><span class="sw stone"></span>Stone</li>
+        <li><span class="sw grass"></span>Grass</li>
+        <li><span class="sw sand"></span>Sand</li>
+        <li><span class="sw rock"></span>Rock</li>
+      </ul>
+    </section>
+    </div>
+
+    <div class="mapwrap" id="mapwrap">
+      <canvas id="map" tabindex="0" role="application"
+              aria-label="Terrain map. Click a point to send the worm there. With the keyboard, move the cursor with the arrow keys and press Enter."
+              aria-describedby="hint"></canvas>
+      <div class="verdict" id="verdict" role="status" hidden></div>
+      <p class="hint" id="hint">Click the map to send the worm.</p>
+    </div>
+
+    <div class="side right">
+    <div class="cam notch" id="cam" hidden></div>
+
+    <div class="transport notch" role="group" aria-label="Playback">
+      <button class="btn" id="pause" type="button" aria-pressed="false">
+        <svg class="ico ico-pause" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="M1 1h2v6H1zM5 1h2v6H5z"/></svg>
+        <svg class="ico ico-play" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false" hidden><path d="M3 1h1v6H3zM4 2h1v4H4zM5 3h1v2H5z"/></svg>
+        <span id="pause-label">Pause</span>
+      </button>
+      <div class="speeds" role="group" aria-label="Speed">
+        <button class="btn num" type="button" data-speed="1" aria-pressed="true">1&times;</button>
+        <button class="btn num" type="button" data-speed="2" aria-pressed="false">2&times;</button>
+        <button class="btn num" type="button" data-speed="4" aria-pressed="false">4&times;</button>
+        <button class="btn num" type="button" data-speed="8" aria-pressed="false">8&times;</button>
+        <button class="btn num" type="button" data-speed="16" aria-pressed="false">16&times;</button>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn" id="cam-toggle" type="button" aria-label="Follow cam" title="Follow cam" aria-pressed="false" aria-controls="cam">
+        <svg class="ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M0 2h2V1h4v1h2v5H0zM3 3h2v2H3z"/></svg>
+        <span class="label">Follow cam</span>
+      </button>
+      <button class="btn" id="drawer-toggle" type="button" aria-label="Map settings" title="Map settings" aria-expanded="false" aria-controls="drawer">
+        <svg class="ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="M0 2h8v1H0zM1 1h2v3H1zM0 5h8v1H0zM5 4h2v3H5z"/></svg>
+        <span class="label">Map settings</span>
+      </button>
+      <button class="btn" id="full-toggle" type="button" aria-label="Full screen" title="Full screen" hidden>
+        <svg class="ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="M5 0h3v3H7V1H5zM0 5h1v2h2v1H0zM6 1h1v1H6zM5 2h1v1H5zM4 3h1v1H4zM3 4h1v1H3zM2 5h1v1H2zM1 6h1v1H1z"/></svg>
+        <span class="label">Full screen</span>
+      </button>
+      <a class="btn" id="own-page" target="_blank" rel="noopener" aria-label="Open in its own page" title="Open in its own page" hidden>
+        <svg class="ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="M5 0h3v3H7V1H5zM6 1h1v1H6zM5 2h1v1H5zM4 3h1v1H4zM3 4h1v1H3zM2 5h1v1H2zM1 6h1v1H1zM0 7h1v1H0z"/></svg>
+        <span class="label">Open in its own page</span>
+      </a>
+    </div>
+    </div>
+  </div>
+
+  <section class="boot notch" id="boot" role="status" hidden>
+    <div class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="boot-title" id="boot-title">Starting the simulation</p>
+    <p class="boot-detail" id="boot-detail"></p>
+    <button class="btn" id="boot-retry" type="button" hidden>Try again</button>
+  </section>
+
+  <section class="drawer" id="drawer" aria-labelledby="drawer-title" hidden>
+    <div class="drawer-head">
+      <h2 id="drawer-title">Map settings</h2>
+      <button class="btn icon" id="drawer-close" type="button" aria-label="Close map settings">
+        <svg class="ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="M1 1h1v1H1zM2 2h1v1H2zM3 3h2v2H3zM5 5h1v1H5zM6 6h1v1H6zM6 1h1v1H6zM5 2h1v1H5zM2 5h1v1H2zM1 6h1v1H1z"/></svg>
+      </button>
+    </div>
+    <fieldset>
+      <legend>Map</legend>
+      <div class="field"><label for="seed">Seed</label><input id="seed" type="number" value="0" min="0" step="1"></div>
+      <div class="field"><label for="size">Size in metres</label>
+        <select id="size"><option>5</option><option selected>10</option><option>15</option></select></div>
+    </fieldset>
+    <fieldset>
+      <legend>Ground mix</legend>
+      <div class="field"><label for="mix-c">Stone <output class="num" for="mix-c" id="mix-c-out">0.4</output></label>
+        <input id="mix-c" type="range" min="0" max="1" step="0.05" value="0.4"></div>
+      <div class="field"><label for="mix-g">Grass <output class="num" for="mix-g" id="mix-g-out">0.3</output></label>
+        <input id="mix-g" type="range" min="0" max="1" step="0.05" value="0.3"></div>
+      <div class="field"><label for="mix-s">Sand <output class="num" for="mix-s" id="mix-s-out">0.3</output></label>
+        <input id="mix-s" type="range" min="0" max="1" step="0.05" value="0.3"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Terrain</legend>
+      <div class="field"><label for="slope">Max slope <output class="num" for="slope" id="slope-out">12&deg;</output></label>
+        <input id="slope" type="range" min="0" max="18" step="1" value="12"></div>
+      <div class="field"><label for="rocks">Rocks <output class="num" for="rocks" id="rocks-out">12</output></label>
+        <input id="rocks" type="range" min="0" max="30" step="1" value="12"></div>
+      <div class="field"><label for="ditches">Ditches <output class="num" for="ditches" id="ditches-out">2</output></label>
+        <input id="ditches" type="range" min="0" max="6" step="1" value="2"></div>
+    </fieldset>
+    <p class="map-error" id="map-error" role="status"></p>
+    <button class="btn primary" id="new-map" type="button">Make new map</button>
+  </section>
+</div>
+
+</body>
+</html>

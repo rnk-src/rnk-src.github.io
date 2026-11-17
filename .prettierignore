@@ -10,3 +10,5 @@ test-results/
 playwright-report/
 .impeccable/hook.cache.json
 public/demos/
+.impeccable/
+PROGRESS.md

@@ -1,0 +1,20 @@
+---
+title: Navigating Worm
+tags: [Python, MuJoCo, Stable-Baselines3]
+dates: Nov 2026 – Present
+order: 2
+repo: https://github.com/rnk-src/navigating-worm
+sim:
+  src: /demos/navigating-worm/index.html
+  poster: ../../assets/projects/navigating-worm/poster.png
+  alt: The simulation as it opens. A top-down map of stone, grass and sand has a purple route to a goal marker. A follow-cam view shows the worm. Speed, follow cam, map settings, full screen and own-page buttons sit at the lower right.
+  size: about 12 MB
+  ready: '#boot'
+  error: '#boot[data-state="error"]'
+  running: '#boot[data-state="ready"]'
+  guide: false
+---
+
+- Developing a camera-equipped, servo-driven worm robot that learns a terrain-adaptive gait through reinforcement learning in simulation and navigates to a target location
+- 3.2× faster than a hand-coded gait and 33–38% faster than a flat-ground policy across every simulated surface
+- Planning routes with A* over a terrain cost map around rocks, ditches and slopes, replanning when the worm gets stuck

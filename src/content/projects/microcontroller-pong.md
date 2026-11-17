@@ -2,7 +2,7 @@
 title: Microcontroller Pong
 tags: [C, Arm Cortex-M0+]
 dates: Apr 2026
-order: 4
+order: 5
 repo: https://github.com/rnk-src/microcontroller-pong
 youtube: ugVnFpN2Pz0
 ---

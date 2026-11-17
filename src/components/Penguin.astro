@@ -5,10 +5,18 @@ interface Props {
   size?: number; // CSS pixels per sprite pixel
   flip?: boolean;
   class?: string;
+  happy?: boolean; // lilac cheeks and an open beak
+  wave?: boolean; // adds a right flipper that waves when the svg has the class "waving"
 }
-const { size = 6, flip = false, class: className = '' } = Astro.props;
+const {
+  size = 6,
+  flip = false,
+  class: className = '',
+  happy = false,
+  wave = false,
+} = Astro.props;
 
-const rows = [
+const base = [
   '.....hhhhhh.....',
   '...hhhhhhhhhh...',
   '..hhhhhhhhhhhh..',
@@ -28,6 +36,40 @@ const rows = [
   '...gggggggggg...',
   '....ff....ff....',
 ];
+const rows = base.map((row) => row.split(''));
+const put = (x: number, y: number, c: string) => {
+  rows[y][x] = c;
+};
+if (happy) {
+  // Keep the round eyes: a dark eye next to the dark head blurs into it. Instead add
+  // lilac cheeks and let the beak open one row. Lilac is the site accent, so the amber
+  // beak stays the only warm colour.
+  put(4, 5, 'p');
+  put(11, 5, 'p');
+  put(7, 6, 'y');
+  put(8, 6, 'y');
+}
+// The right flipper has three poses: at rest, raised and out. The shoulder stays put.
+const restArm: [number, number][] = [
+  [13, 11],
+  [14, 11],
+  [13, 12],
+  [14, 12],
+  [14, 13],
+];
+const raisedArm: [number, number][] = [
+  [14, 9],
+  [15, 9],
+  [15, 8],
+];
+const outArm: [number, number][] = [
+  [15, 10],
+  [14, 11],
+  [15, 11],
+];
+if (wave) {
+  for (const [x, y] of restArm) put(x, y, y <= 12 && x === 13 ? 'g' : '.');
+}
 const fills: Record<string, string> = {
   h: 'var(--pg-head)',
   y: 'var(--pg-beak)',
@@ -36,6 +78,7 @@ const fills: Record<string, string> = {
   g: 'var(--pg-body)',
   l: 'var(--pg-belly)',
   d: 'var(--pg-flipper)',
+  p: 'var(--accent)',
   f: 'var(--pg-feet)',
 };
 
@@ -53,10 +96,12 @@ rows.forEach((row, y) => {
   }
 });
 const cols = rows[0].length;
+const dots = (pixels: [number, number][]) =>
+  pixels.map(([x, y]) => ({ x, y, w: 1, fill: fills.d, eye: false }));
 ---
 
 <svg
-  class={`penguin ${className}`}
+  class={`penguin ${happy ? 'happy' : ''} ${className}`}
   width={cols * size}
   height={rows.length * size}
   viewBox={`0 0 ${cols} ${rows.length}`}
@@ -75,6 +120,20 @@ const cols = rows[0].length;
       class={r.eye ? 'penguin-eye' : undefined}
     />
   ))}
+  {wave &&
+    (
+      [
+        ['rest', restArm],
+        ['raised', raisedArm],
+        ['out', outArm],
+      ] as const
+    ).map(([name, pixels]) => (
+      <g class={`arm arm-${name}`}>
+        {dots([...pixels]).map((r) => (
+          <rect x={r.x} y={r.y} width={1} height={1} fill={r.fill} />
+        ))}
+      </g>
+    ))}
 </svg>
 
 <style>
@@ -96,6 +155,36 @@ const cols = rows[0].length;
     95%,
     97% {
       transform: scaleY(0.2);
+    }
+  }
+  /* The raised and out poses stay hidden until the chick waves. */
+  .arm-raised,
+  .arm-out {
+    visibility: hidden;
+  }
+  .waving .arm-rest {
+    visibility: hidden;
+  }
+  .waving .arm-raised {
+    animation: wave-raised 0.5s steps(1) infinite;
+  }
+  .waving .arm-out {
+    animation: wave-out 0.5s steps(1) infinite;
+  }
+  @keyframes wave-raised {
+    0% {
+      visibility: visible;
+    }
+    50% {
+      visibility: hidden;
+    }
+  }
+  @keyframes wave-out {
+    0% {
+      visibility: hidden;
+    }
+    50% {
+      visibility: visible;
     }
   }
   @media (prefers-reduced-motion: reduce) {

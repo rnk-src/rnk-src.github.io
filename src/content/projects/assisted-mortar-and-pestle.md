@@ -2,7 +2,7 @@
 title: Assisted Mortar and Pestle
 tags: [Python, PyBullet]
 dates: Jul 2026 – Present
-order: 2
+order: 3
 repo: https://github.com/rnk-src/mortar-and-pestle
 sim:
   src: /demos/mortar-pestle/index.html
