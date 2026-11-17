@@ -415,6 +415,50 @@ test('the happy face has two eyes on white, blushing cheeks and an open beak', a
   expect(face.touching, 'eyes never touch the dark head').toEqual([]);
 });
 
+test('every planet row is centred on the sprite', async ({ page }) => {
+  await page.goto('/');
+  const offCentre = await page.evaluate(() =>
+    [...document.querySelectorAll<SVGSVGElement>('svg.planet')].flatMap(
+      (svg) => {
+        const width = Number(svg.getAttribute('viewBox')!.split(' ')[2]);
+        const spans = new Map<number, [number, number]>();
+        for (const r of svg.querySelectorAll('rect')) {
+          const x = Number(r.getAttribute('x'));
+          const y = Number(r.getAttribute('y'));
+          const end = x + Number(r.getAttribute('width')) - 1;
+          const [lo, hi] = spans.get(y) ?? [x, end];
+          spans.set(y, [Math.min(lo, x), Math.max(hi, end)]);
+        }
+        return [...spans]
+          .filter(([, [lo, hi]]) => lo + hi !== width - 1)
+          .map(([y, [lo, hi]]) => `${width}-wide row ${y}: ${lo}..${hi}`);
+      },
+    ),
+  );
+  expect(offCentre).toEqual([]);
+});
+
+test('the LinkedIn "in" sits in the middle of its square', async ({ page }) => {
+  await page.goto('/');
+  const holes = await page.evaluate(() => {
+    const svg = [...document.querySelectorAll('a')]
+      .find((a) => a.textContent?.trim() === 'LinkedIn')!
+      .querySelector('svg')!;
+    const filled = new Set<string>();
+    for (const r of svg.querySelectorAll('rect')) {
+      const x = Number(r.getAttribute('x'));
+      const y = Number(r.getAttribute('y'));
+      for (let i = 0; i < Number(r.getAttribute('width')); i++)
+        filled.add(`${x + i},${y}`);
+    }
+    const xs: number[] = [];
+    for (let y = 1; y < 15; y++)
+      for (let x = 1; x < 15; x++) if (!filled.has(`${x},${y}`)) xs.push(x);
+    return { left: Math.min(...xs), right: Math.max(...xs) };
+  });
+  expect(holes.left + holes.right, 'equal margins left and right').toBe(15);
+});
+
 test('the guide chick stays away with reduced motion', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
