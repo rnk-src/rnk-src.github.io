@@ -22,5 +22,5 @@ image:
 ---
 
 - Developed a CV model to remove humans from a picture and fill in the missing parts with generative AI
-- Built a pipeline to fine-tune a COCO-trained segmentation model on the OCHuman dataset
+- 27% higher person-detection AP on heavily occluded people after fine-tuning a COCO-trained Mask R-CNN on OCHuman
 - Used LaMa inpainting to regenerate the missing portions of the image
