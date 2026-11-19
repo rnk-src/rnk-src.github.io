@@ -86,8 +86,8 @@
   .app[data-layout="wide"] .side > * { align-self: stretch; }
   .app[data-layout="wide"] .buttons { margin-top: auto; }
   .app[data-layout="tall"] .stage { grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto var(--m) auto auto; align-content: center;
-    grid-template-areas: "status buttons" "map map" "legend legend" "transport transport"; }
+    grid-template-rows: auto var(--m) auto auto auto; align-content: center;
+    grid-template-areas: "status buttons" "map map" "race race" "legend legend" "transport transport"; }
   .app[data-layout="tall"] .mapwrap { justify-self: stretch; width: auto; }
   .app[data-layout="tight"] .stage { display: block; }
   .app[data-layout="tight"] .mapwrap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
@@ -129,6 +129,30 @@
   .sw { width: 12px; height: 12px; flex: none; border: 1px solid var(--ground); }
   .sw.stone { background: rgb(150, 150, 155); } .sw.grass { background: rgb(96, 160, 80); }
   .sw.sand { background: rgb(214, 190, 140); } .sw.rock { background: rgb(60, 56, 54); border-color: var(--faint); }
+
+  /* The race: one row per racer, its finish time and its gap to the chosen baseline. */
+  .race { grid-area: race; padding: 10px 12px; align-self: start; z-index: 2; }
+  .race-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .race h2 { margin: 0; font-size: 14px; color: var(--ink); }
+  .compare { display: flex; align-items: center; gap: 4px; color: var(--faint); }
+  .compare .btn { min-height: 28px; padding: 4px 8px; font-size: 13px; }
+  .race ol { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+  .race li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: center; gap: 0 8px; min-height: 24px; }
+  .race li > .row { display: contents; }
+  .race button.row-btn { all: unset; display: contents; cursor: pointer; }
+  .race button.row-btn:focus-visible .name { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .race li[data-shown="false"] { opacity: 0.45; }
+  .race li[data-shown="false"] .name { text-decoration: line-through; }
+  .race .mark { height: 0; border-top: 3px solid currentColor; }
+  .race .name { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .race .time { text-align: right; color: var(--ink); }
+  .race .delta { grid-column: 2 / 4; color: var(--faint); font-size: 12px; margin-top: -2px; }
+  .race .delta:empty { display: none; }
+  .race-note { margin: 8px 0 0; color: var(--faint); font-size: 12px; }
+  .app[data-layout="tall"] .race ol { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 2px 16px; }
+  .app[data-layout="tight"] .race { display: none; }
+  .app[data-layout="tall"][data-racing] .legend { display: none; }
+  .app[data-layout="wide"] .side.left { overflow-y: auto; }
 
   /* The answer to a click, where the click landed. */
   .verdict { position: absolute; z-index: 3; width: max-content; max-width: min(240px, 70%); padding: 8px 12px;
@@ -192,6 +216,10 @@
     .buttons .label { display: none; }
     .buttons .btn { padding: 6px; min-width: 32px; }
     .hint { font-size: 13px; padding: 2px 8px; }
+    .app[data-racing] .legend, .app[data-racing] .readout, .race-note, .race .delta { display: none; }
+    .race { padding: 8px 10px; }
+    .race ol { margin-top: 4px; gap: 0; }
+    .race li { min-height: 20px; font-size: 13px; }
   }
 
   /* Shown while another data source, such as the browser engine, starts up. */
@@ -219,7 +247,7 @@
   }
   @media (prefers-reduced-motion: reduce) { .verdict { animation: none; } .btn { transition: none; } }
 </style>
-  <script type="module" crossorigin src="./assets/index-bM0fXKWf.js"></script>
+  <script type="module" crossorigin src="./assets/index-CO4f74iw.js"></script>
 </head>
 <body>
 <div class="app" id="app" data-layout="tight">
@@ -243,6 +271,19 @@
         <li><span class="sw sand"></span>Sand</li>
         <li><span class="sw rock"></span>Rock</li>
       </ul>
+    </section>
+
+    <section class="race notch" id="race" aria-label="Race results" hidden>
+      <div class="race-head">
+        <h2>Race</h2>
+        <div class="compare" role="group" aria-label="Compare finish times against">
+          <span>vs</span>
+          <button class="btn" type="button" data-ref="Flat policy" aria-pressed="true">Flat</button>
+          <button class="btn" type="button" data-ref="Scripted gait" aria-pressed="false">Scripted</button>
+        </div>
+      </div>
+      <ol id="race-list"></ol>
+      <p class="race-note">Policy snapshots from one training run (seed 0). Simulated terrain.</p>
     </section>
     </div>
 
@@ -273,6 +314,10 @@
     </div>
 
     <div class="buttons">
+      <button class="btn" id="race-toggle" type="button" aria-label="Race" title="Race the training snapshots" aria-pressed="true" aria-controls="race" hidden>
+        <svg class="ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path d="M2 0h1v7H2zM3 1h4v4H3zM1 7h4v1H1z"/></svg>
+        <span class="label">Race</span>
+      </button>
       <button class="btn" id="cam-toggle" type="button" aria-label="Follow cam" title="Follow cam" aria-pressed="false" aria-controls="cam">
         <svg class="ico" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M0 2h2V1h4v1h2v5H0zM3 3h2v2H3z"/></svg>
         <span class="label">Follow cam</span>
