@@ -3,6 +3,7 @@ title: Beverage Disposal Arm
 tags: [Python, MuJoCo, ROS 2]
 dates: Sep 2026 – Present
 order: 1
+repo: https://github.com/rnk-src/beverage-disposal
 ---
 
 - Building a simulated pick-and-place system where a robotic arm sorts and disposes empty beverage containers
